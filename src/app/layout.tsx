@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, JetBrains_Mono, Geist } from "next/font/google";
+import { Syne, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const syne = Syne({
   variable: "--font-syne",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const dmSans = DM_Sans({
@@ -25,7 +23,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "flopcheck — YouTube Video Analyzer",
-  description: "Paste a YouTube URL and get an AI diagnosis of why your video underperformed.",
+  description: "Pourquoi ta vidéo a floppé ? Diagnostic IA brutal pour tes vidéos YouTube.",
 };
 
 export default function RootLayout({
@@ -34,9 +32,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("dark", "font-sans", geist.variable)}>
+    <html lang="fr" className="dark">
       <body
-        className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} antialiased bg-[#080809] text-zinc-300`}
       >
         {children}
       </body>
