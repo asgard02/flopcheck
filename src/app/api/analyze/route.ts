@@ -137,6 +137,12 @@ async function getOpenAIDiagnosis(videoData: YouTubeVideoData): Promise<Diagnosi
       })
     : "Unknown";
 
+  const now = new Date();
+  const publishedAtDate = videoData.publishedAt ? new Date(videoData.publishedAt) : now;
+  const ageInDays = Math.floor(
+    (now.getTime() - publishedAtDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
   const videoDataStr = JSON.stringify({
     title: videoData.title,
     description: videoData.description,
@@ -163,6 +169,24 @@ Logique du score :
 - Une vidéo à 10K vues sur une chaîne de 2M abonnés = score 2-3 (sous-performance critique)
 - Une vidéo à 50K vues sur une chaîne de 50K abonnés = score 5-6 (dans la moyenne)
 - Prends en compte la niche : gaming viral ≠ éducation de niche ≠ vlog lifestyle
+
+═══════════════════════════════
+ANALYSE TEMPORELLE — OBLIGATOIRE
+═══════════════════════════════
+La vidéo a été publiée le : ${publishDate}
+Aujourd'hui nous sommes le : ${now.toISOString()}
+Ancienneté exacte : ${ageInDays} jours
+
+Règles :
+- < 7 jours → vidéo récente, le score reflète la vélocité initiale
+  (10K vues en 3 jours sur 50K abonnés = très bon signe)
+- 7 à 30 jours → période de croissance normale, juge la trajectoire
+- 1 à 12 mois → performance stabilisée, compare au total de la chaîne
+- > 1 an → vidéo mature, les vues cumulées sont normales, juge la longévité SEO
+
+Ne juge JAMAIS une vidéo récente avec les mêmes critères qu'une vidéo ancienne.
+Une vidéo à 500 vues postée hier peut être en train d'exploser.
+Une vidéo à 500 vues postée il y a 2 ans a clairement floppé.
 
 ═══════════════════════════════
 CONTEXTE À ANALYSER

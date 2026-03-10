@@ -82,7 +82,7 @@ export function ProjectSection({ history, onSelectProject, onDelete }: ProjectSe
           </div>
         ))}
         <Link
-          href="/historique"
+          href="/projets"
           className="flex flex-col rounded-xl border border-[#0f0f12] bg-[#0c0c0e] hover:bg-[#0d0d0f] hover:border-[#1a1a1e] transition-all overflow-hidden group"
         >
           <div className="w-full aspect-video overflow-hidden bg-[#0d0d0f] relative">

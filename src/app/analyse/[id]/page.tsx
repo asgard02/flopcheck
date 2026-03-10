@@ -92,7 +92,7 @@ export default function AnalysePage() {
         setDeleting(true);
         try {
           const res = await fetch(`/api/history/${id}`, { method: "DELETE" });
-          if (res.ok) router.push("/historique");
+          if (res.ok) router.push("/projets");
         } finally {
           setDeleting(false);
         }

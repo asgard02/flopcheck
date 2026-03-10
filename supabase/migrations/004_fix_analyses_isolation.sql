@@ -28,6 +28,7 @@ ALTER TABLE public.analyses FORCE ROW LEVEL SECURITY;
 -- Supprimer les anciennes policies pour éviter les conflits
 DROP POLICY IF EXISTS "Users can view own analyses" ON public.analyses;
 DROP POLICY IF EXISTS "Users can insert own analyses" ON public.analyses;
+DROP POLICY IF EXISTS "Users can update own analyses" ON public.analyses;
 DROP POLICY IF EXISTS "Users can delete own analyses" ON public.analyses;
 
 -- Policies strictes : uniquement ses propres données

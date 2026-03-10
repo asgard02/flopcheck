@@ -23,7 +23,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0);
   const [urlError, setUrlError] = useState<string | null>(null);
   const [panelError, setPanelError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -42,17 +41,6 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
-
-  useEffect(() => {
-    if (!loading) return;
-    setLoadingStep(0);
-    const t1 = setTimeout(() => setLoadingStep(1), 600);
-    const t2 = setTimeout(() => setLoadingStep(2), 1200);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  }, [loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,14 +158,21 @@ export default function DashboardPage() {
                 )}
 
                 <div className="flex flex-wrap justify-center gap-2">
-                  {PILLS.map((label) => (
-                    <span
-                      key={label}
-                      className="font-mono text-xs px-3 py-1.5 rounded-full text-zinc-500 bg-[#0c0c0e] border border-[#0f0f12]"
-                    >
-                      {label}
-                    </span>
-                  ))}
+                  {loading ? (
+                    <div className="flex items-center gap-3 font-mono text-sm text-zinc-500 py-2">
+                      <Loader2 className="size-4 animate-spin text-[#00ff88]" />
+                      <span>Analyse en cours...</span>
+                    </div>
+                  ) : (
+                    PILLS.map((label) => (
+                      <span
+                        key={label}
+                        className="font-mono text-xs px-3 py-1.5 rounded-full text-zinc-500 bg-[#0c0c0e] border border-[#0f0f12]"
+                      >
+                        {label}
+                      </span>
+                    ))
+                  )}
                 </div>
               </form>
             </div>
@@ -192,10 +187,9 @@ export default function DashboardPage() {
       </div>
 
       <ResultPanel
-        open={loading || !!panelError}
+        open={!!panelError}
         onClose={() => setPanelError(null)}
-        loading={loading}
-        loadingStep={loadingStep}
+        loading={false}
         error={panelError}
         result={null}
       />

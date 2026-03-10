@@ -66,6 +66,8 @@ type ResultViewProps = {
   onDelete?: () => void;
   deleting?: boolean;
   showDelete?: boolean;
+  /** When true, renders only the content (no Sidebar/Header) for embedding in other pages */
+  embedMode?: boolean;
 };
 
 type TabId = "overview" | "seo" | "wins";
@@ -78,6 +80,7 @@ export function ResultView({
   onDelete,
   deleting = false,
   showDelete = false,
+  embedMode = false,
 }: ResultViewProps) {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -109,38 +112,36 @@ export function ResultView({
     { id: "wins", label: "Quick wins", icon: <Zap className="size-4" /> },
   ];
 
-  return (
-    <div className="min-h-screen bg-[#080809] text-zinc-300">
-      <Sidebar />
-      <div className="pl-[60px] min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1 flex flex-col">
-          {/* Hero */}
+  const content = (
+    <main className={`flex-1 flex flex-col ${embedMode ? "" : ""}`}>
+      {/* Hero */}
           <div className="relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-[#00ff88]/5 via-transparent to-[#080809]" />
-            <div className="relative px-6 pt-8 pb-12">
+            <div className={`relative px-6 pb-12 ${embedMode ? "pt-4" : "pt-8"}`}>
               <div className="max-w-4xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
-                  <button
-                    type="button"
-                    onClick={onBack}
-                    className="group flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#00ff88] transition-colors"
-                  >
-                    <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
-                    Retour
-                  </button>
-                  {showDelete && onDelete && (
+                {!embedMode && (
+                  <div className="flex items-center justify-between mb-8">
                     <button
                       type="button"
-                      onClick={onDelete}
-                      disabled={deleting}
-                      className="flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#ff3b3b] transition-colors disabled:opacity-50"
+                      onClick={onBack}
+                      className="group flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#00ff88] transition-colors"
                     >
-                      <Trash2 className="size-4" />
-                      {deleting ? "Suppression..." : "Supprimer"}
+                      <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
+                      Retour
                     </button>
-                  )}
-                </div>
+                    {showDelete && onDelete && (
+                      <button
+                        type="button"
+                        onClick={onDelete}
+                        disabled={deleting}
+                        className="flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#ff3b3b] transition-colors disabled:opacity-50"
+                      >
+                        <Trash2 className="size-4" />
+                        {deleting ? "Suppression..." : "Supprimer"}
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex flex-col lg:flex-row gap-10 items-start">
                   {/* Thumbnail + Score */}
@@ -474,7 +475,23 @@ export function ResultView({
               )}
             </div>
           </div>
-        </main>
+    </main>
+  );
+
+  if (embedMode) {
+    return (
+      <div className="flex flex-col min-h-0 text-zinc-300">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#080809] text-zinc-300">
+      <Sidebar />
+      <div className="pl-[60px] min-h-screen flex flex-col">
+        <Header />
+        {content}
       </div>
     </div>
   );

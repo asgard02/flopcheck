@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Home,
   FolderKanban,
-  History,
+  Film,
   BarChart3,
   Download,
   Settings,
@@ -15,7 +15,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 type SidebarProps = {
-  activeItem?: "accueil" | "projets" | "historique" | "analytics" | "exporter";
+  activeItem?: "accueil" | "projets" | "clips" | "analytics" | "exporter";
 };
 
 type Profile = {
@@ -24,12 +24,18 @@ type Profile = {
   plan: string;
 };
 
-const navItems = [
-  { id: "accueil" as const, icon: Home, label: "Accueil", href: "/dashboard" },
-  { id: "projets" as const, icon: FolderKanban, label: "Projets", href: "#" },
-  { id: "historique" as const, icon: History, label: "Historique", href: "/historique" },
-  { id: "analytics" as const, icon: BarChart3, label: "Analytics", href: "#" },
-  { id: "exporter" as const, icon: Download, label: "Exporter", href: "#" },
+const navItems: {
+  id: "accueil" | "projets" | "clips" | "analytics" | "exporter";
+  icon: typeof Home;
+  label: string;
+  href: string;
+  comingSoon?: boolean;
+}[] = [
+  { id: "accueil", icon: Home, label: "Accueil", href: "/dashboard" },
+  { id: "projets", icon: FolderKanban, label: "Projets", href: "/projets" },
+  { id: "clips", icon: Film, label: "Clips", href: "/clips", comingSoon: true },
+  { id: "analytics", icon: BarChart3, label: "Analytics", href: "/analytics" },
+  { id: "exporter", icon: Download, label: "Exporter", href: "/exporter" },
 ];
 
 function getInitial(username: string | null, email?: string | null): string {
@@ -89,6 +95,7 @@ export function Sidebar({ activeItem = "accueil" }: SidebarProps) {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.id;
+          const comingSoon = item.comingSoon === true;
 
           const content = (
             <>
@@ -98,13 +105,28 @@ export function Sidebar({ activeItem = "accueil" }: SidebarProps) {
                 }`}
                 style={{ height: "60%" }}
               />
-              <Icon className="size-5 shrink-0" />
+              <span className="relative shrink-0 flex items-center gap-1">
+                <Icon className="size-5" />
+                {comingSoon && (
+                  <span
+                    className="shrink-0 px-1 rounded text-[8px] font-medium bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/30"
+                    title="Coming soon"
+                  >
+                    soon
+                  </span>
+                )}
+              </span>
               {hovered && (
                 <span
-                  className="font-mono text-xs whitespace-nowrap transition-opacity duration-150"
+                  className="font-mono text-xs whitespace-nowrap transition-opacity duration-150 flex items-center gap-2"
                   style={{ opacity: hovered ? 1 : 0 }}
                 >
                   {item.label}
+                  {comingSoon && (
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/30">
+                      Coming soon
+                    </span>
+                  )}
                 </span>
               )}
             </>
