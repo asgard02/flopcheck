@@ -12,6 +12,7 @@ import fs from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
 import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import ffmpeg from "fluent-ffmpeg";
 import { existsSync } from "node:fs";
 
@@ -24,8 +25,9 @@ const SUPABASE_SERVICE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
 // Hors du projet pour éviter que node --watch redémarre quand on écrit des clips
-const TMP_DIR = path.join(os.tmpdir(), "influ-clips");
+const TMP_DIR = path.join(os.tmpdir(), "vyrll-clips");
 const MAX_VIDEO_DURATION_SEC = 20 * 60; // 20 min
+const CLIPS_MAX_PER_JOB = Number(process.env.CLIPS_MAX_PER_JOB) || 3;
 
 const jobs = new Map();
 
@@ -33,6 +35,25 @@ const openai = OPENAI_API_KEY ? new OpenAI({ apiKey: OPENAI_API_KEY }) : null;
 const supabase =
   SUPABASE_URL && SUPABASE_SERVICE_KEY
     ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+    : null;
+
+const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID;
+const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID;
+const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY;
+const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME;
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL?.replace(/\/$/, "");
+
+const r2Client =
+  R2_ACCOUNT_ID && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY
+    ? new S3Client({
+        region: "auto",
+        endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+        credentials: {
+          accessKeyId: R2_ACCESS_KEY_ID,
+          secretAccessKey: R2_SECRET_ACCESS_KEY,
+        },
+        forcePathStyle: true,
+      })
     : null;
 
 function authMiddleware(req, res, next) {
@@ -233,40 +254,61 @@ async function detectMoments(segments, durationMinSec, durationMaxSec) {
   if (!segments?.length) return { moments: [] };
 
   const segmentList = segments
-    .map((s, i) => `Segment ${i}: [${s.start.toFixed(1)}s - ${s.end.toFixed(1)}s] ${(s.text || "").trim()}`)
+    .map((s, i) => {
+      const dur = (s.end - s.start).toFixed(1);
+      const endsClean = isCleanSentenceEnd(s.text) ? "✓" : " ";
+      return `Segment ${i} [${s.start.toFixed(1)}s-${s.end.toFixed(1)}s | dur:${dur}s | fin:${endsClean}] ${(s.text || "").trim()}`;
+    })
     .join("\n");
+
+  const targetDurationSec = Math.round((durationMinSec + durationMaxSec) / 2);
+
+  const systemPrompt = `Tu es un expert en montage de clips viraux YouTube/TikTok/Reels.
+
+Tu reçois une transcription découpée en segments numérotés avec leurs timestamps.
+Chaque ligne indique : index, [start-end | dur:Xs | fin:✓ ou fin: ] texte
+- "dur" = durée du segment en secondes
+- "fin:✓" = ce segment se termine par une ponctuation forte (., !, ?) — fin de phrase propre
+- "fin: " = ce segment ne se termine PAS par une ponctuation forte — NE PAS utiliser comme segment_end_index
+
+TA MISSION : identifier les 3 meilleurs moments pour des clips viraux. Un moment = un bloc de segments consécutifs.
+
+RÈGLES DE SÉLECTION :
+1. Choisis les moments avec le plus fort potentiel viral : pic émotionnel, révélation, chute drôle, argument fort, tension, moment de surprise. PAS les introductions ni les conclusions génériques.
+2. INTERDIT de commencer au segment 0 ou 1 sauf si c'est objectivement le meilleur moment de toute la vidéo (rare). Explore TOUTE la transcription.
+3. Les 3 moments doivent être distincts, sans aucun chevauchement de segments.
+
+RÈGLES DE DURÉE — OBLIGATOIRES ET VÉRIFIABLES :
+- Durée cible : ${targetDurationSec}s. Plage acceptée : [${durationMinSec}s, ${durationMaxSec}s].
+- CALCUL OBLIGATOIRE : somme des "dur" de chaque segment du bloc = durée totale.
+- Exemple : si segments 10 à 15 ont des durées 3.2+2.8+4.1+3.5+2.9+3.5 = 20s → trop court, ajoute des segments.
+- Tu DOIS sommer les durées et vérifier que le total est dans [${durationMinSec}s, ${durationMaxSec}s] avant de valider.
+
+RÈGLE FIN DE PHRASE — OBLIGATOIRE :
+- segment_end_index DOIT avoir "fin:✓".
+- Si le segment candidat a "fin: ", remonte jusqu'au segment précédent qui a "fin:✓".
+- Ne jamais terminer sur un segment avec "fin: ".
+
+POUR CHAQUE MOMENT, retourne :
+- segment_start_index : index du premier segment (entier)
+- segment_end_index : index du dernier segment (entier, DOIT avoir fin:✓)
+- duree_calculee : somme des durées des segments du bloc en secondes (ta vérification)
+- score_viral : note de 1 à 10
+- type : "pic_emotionnel" | "revelation" | "humour" | "tension" | "argument_fort" | "autre"
+- reason : en 1 phrase, pourquoi ce moment est viral
+- hook : la première phrase du moment
+
+Réponds UNIQUEMENT en JSON :
+{"moments": [{"segment_start_index": 4, "segment_end_index": 12, "duree_calculee": 44.3, "score_viral": 8, "type": "revelation", "reason": "...", "hook": "..."}, ...]}
+
+SEGMENTS :
+${segmentList}`;
 
   const res = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
-      {
-        role: "system",
-        content: `Tu es un expert en contenu viral YouTube et TikTok.
-
-Tu reçois la transcription de la vidéo découpée en SEGMENTS (chaque segment = une phrase ou un bout de phrase avec timestamps).
-
-TA MISSION : identifier les 3 meilleurs "moments" pour un clip viral. Chaque moment doit être un BLOC DE SEGMENTS CONSÉCUTIFS :
-- Le moment COMMENCE au début d'un segment (début d'une idée/phrase).
-- Le moment FINIT à la fin d'un segment (fin d'une idée/phrase) ET ce segment doit se terminer par une ponctuation forte : un point, un point d'exclamation ou un point d'interrogation (jamais une virgule ou une conjonction).
-- Tu ne dois JAMAIS couper au milieu d'un segment : tu choisis segment_start_index et segment_end_index (inclus).
-
-Contrainte de durée OBLIGATOIRE : la durée totale du bloc (du début du segment_start_index à la fin du segment_end_index) DOIT être entre ${durationMinSec} et ${durationMaxSec} secondes. Compte les timestamps : (fin du segment_end_index) - (début du segment_start_index) doit faire entre ${durationMinSec}s et ${durationMaxSec}s. Choisis assez de segments consécutifs pour atteindre cette durée (plusieurs phrases = un bloc de 30-60s).
-
-Contrainte DISTINCTION : les 3 moments doivent être DISTINCTS. Aucun chevauchement de segments. Chaque segment ne doit être utilisé que dans un seul moment. Les plages [segment_start_index, segment_end_index] ne doivent pas se chevaucher entre les 3 moments.
-
-Pour chaque moment, retourne :
-- segment_start_index (entier, index du premier segment du moment)
-- segment_end_index (entier, index du dernier segment du moment, >= segment_start_index, avec assez de segments pour que la durée soit entre ${durationMinSec} et ${durationMaxSec} secondes ET dont le texte se termine par ., ! ou ?)
-- reason (pourquoi ce moment est viral)
-- hook (la première phrase / accroche du moment)
-
-Réponds UNIQUEMENT en JSON, pas de texte avant ou après :
-{"moments": [{"segment_start_index": 0, "segment_end_index": 5, "reason": "...", "hook": "..."}, ...]}
-
-Liste des segments (index = numéro à utiliser pour segment_start_index et segment_end_index) :
-${segmentList}`,
-      },
-      { role: "user", content: "Identifie les 3 meilleurs moments (blocs de segments consécutifs) pour des clips viraux." },
+      { role: "system", content: systemPrompt },
+      { role: "user", content: "Identifie les 3 moments." },
     ],
     response_format: { type: "json_object" },
   });
@@ -346,6 +388,20 @@ async function uploadToSupabase(localPath, storagePath) {
   return urlData.publicUrl;
 }
 
+async function uploadToR2(localPath, storagePath) {
+  if (!r2Client || !R2_BUCKET_NAME || !R2_PUBLIC_URL) return null;
+  const data = await fs.readFile(localPath);
+  await r2Client.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: storagePath,
+      Body: data,
+      ContentType: "video/mp4",
+    })
+  );
+  return `${R2_PUBLIC_URL}/${storagePath}`;
+}
+
 async function processJob(jobId) {
   const job = jobs.get(jobId);
   if (!job || job.status !== "pending") return;
@@ -392,6 +448,7 @@ async function processJob(jobId) {
       job.error = "PROCESSING_FAILED";
       return;
     }
+    moments = moments.sort((a, b) => (b.score_viral ?? 0) - (a.score_viral ?? 0));
     moments = moments.filter((m, idx) => {
       const a = Math.max(0, Number(m.segment_start_index) ?? 0);
       const b = Math.max(a, Number(m.segment_end_index) ?? a);
@@ -413,7 +470,7 @@ async function processJob(jobId) {
     await ensureDir(clipsDir);
 
     const clipUrls = [];
-    const numClips = Math.min(3, moments.length);
+    const numClips = Math.min(CLIPS_MAX_PER_JOB, moments.length);
     for (let i = 0; i < numClips; i++) {
       const m = moments[i];
       let start;
@@ -423,11 +480,17 @@ async function processJob(jobId) {
       if (m.segment_start_index != null && m.segment_end_index != null) {
         start = segments[iStart].start;
         end = segments[iEnd].end;
-        const extended = extendSegmentRangeToMeetDuration(segments, iStart, iEnd, durationMin, durationMax);
-        iStart = extended.iStart;
-        iEnd = extended.iEnd;
-        start = segments[iStart].start;
-        end = segments[iEnd].end;
+        const dur = end - start;
+
+        // N'ajuster que si vraiment hors tolérance (pas juste "pas parfait")
+        const TOLERANCE = 3; // secondes de marge avant d'intervenir
+        if (dur < durationMin - TOLERANCE || dur > durationMax + TOLERANCE) {
+          const extended = extendSegmentRangeToMeetDuration(segments, iStart, iEnd, durationMin, durationMax);
+          iStart = extended.iStart;
+          iEnd = extended.iEnd;
+          start = segments[iStart].start;
+          end = segments[iEnd].end;
+        }
       } else {
         start = Number(m.start_time) ?? 0;
         end = Number(m.end_time) ?? start + durationMax;
@@ -463,18 +526,23 @@ async function processJob(jobId) {
       }
       job.progress = 55 + Math.round((25 * (i + 1)) / numClips);
 
-      if (supabase) {
+      const storagePath = `${jobId}/clip-${i}.mp4`;
+      let publicUrl = null;
+      if (r2Client && R2_BUCKET_NAME && R2_PUBLIC_URL) {
         try {
-          const storagePath = `${jobId}/clip-${i}.mp4`;
-          const publicUrl = await uploadToSupabase(outPath, storagePath);
-          clipUrls.push({ url: publicUrl, index: i });
+          publicUrl = await uploadToR2(outPath, storagePath);
         } catch (uploadErr) {
-          console.warn("Supabase upload failed, using local storage:", uploadErr.message);
-          clipUrls.push({ url: null, index: i });
+          console.warn("R2 upload failed:", uploadErr.message);
         }
-      } else {
-        clipUrls.push({ url: null, index: i });
       }
+      if (!publicUrl && supabase) {
+        try {
+          publicUrl = await uploadToSupabase(outPath, storagePath);
+        } catch (uploadErr) {
+          console.warn("Supabase upload failed:", uploadErr.message);
+        }
+      }
+      clipUrls.push({ url: publicUrl, index: i });
     }
 
     job.progress = 100;
@@ -499,7 +567,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.json({ ok: true, service: "flopcheck-clips", endpoints: ["POST /jobs", "GET /jobs/:id", "GET /jobs/:id/clips/:index"] });
+  res.json({ ok: true, service: "vyrll-clips", endpoints: ["POST /jobs", "GET /jobs/:id", "GET /jobs/:id/clips/:index"] });
 });
 
 const ALLOWED_STYLES = ["karaoke", "highlight", "minimal"];
@@ -594,5 +662,5 @@ app.listen(PORT, () => {
   console.log(`Backend clips sur http://localhost:${PORT}`);
   if (!BACKEND_SECRET) console.warn("BACKEND_SECRET manquant");
   if (!OPENAI_API_KEY) console.warn("OPENAI_API_KEY manquant");
-  if (!supabase) console.warn("Supabase non configuré (clips en local)");
+  if (!r2Client && !supabase) console.warn("R2 et Supabase non configurés (clips en local)");
 });

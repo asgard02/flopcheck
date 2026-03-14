@@ -131,7 +131,7 @@ function LoadingSteps({ step }: { step: number }) {
         >
           <span
             className={`size-2 rounded-full shrink-0 ${
-              i < step ? "bg-[#00ff88]" : i === step ? "bg-[#00ff88] animate-pulse" : "bg-zinc-600"
+              i < step ? "bg-[#9b6dff]" : i === step ? "bg-[#9b6dff] animate-pulse" : "bg-zinc-600"
             }`}
           />
           {label}
@@ -182,7 +182,7 @@ function ResultContent({
         <p className="font-mono text-xs text-zinc-500 uppercase mb-1">Verdict</p>
         <p className="text-sm text-zinc-300">{diagnosis.verdict}</p>
         {diagnosis.overperformed && (
-          <span className="inline-block mt-1 font-mono text-xs text-[#00ff88]">↑ Overperformed</span>
+          <span className="inline-block mt-1 font-mono text-xs text-[#4a9e6a]">↑ Overperformed</span>
         )}
       </div>
 
@@ -209,7 +209,7 @@ function ResultContent({
           <p className="text-sm text-zinc-500 line-through">
             {videoData.title}
           </p>
-          <p className="text-sm text-[#00ff88]">{diagnosis.title_fixed}</p>
+          <p className="text-sm text-[#4a9e6a]">{diagnosis.title_fixed}</p>
           <button
             type="button"
             onClick={() => copyToClipboard(diagnosis.title_fixed, "title")}
@@ -228,7 +228,7 @@ function ResultContent({
           {diagnosis.tags_fixed.map((t, i) => (
             <span
               key={i}
-              className="font-mono text-xs px-2 py-1 rounded bg-[#00ff88]/10 text-[#00ff88] border border-[#00ff88]/20"
+              className="font-mono text-xs px-2 py-1 rounded bg-[#4a9e6a]/10 text-[#4a9e6a] border border-[#4a9e6a]/20"
             >
               {t}
             </span>
@@ -242,7 +242,7 @@ function ResultContent({
         <ul className="space-y-2">
           {diagnosis.quickwins.map((w, i) => (
             <li key={i} className="flex gap-2 text-sm">
-              <span className="font-mono text-[#00ff88] shrink-0">[{i + 1}]</span>
+              <span className="font-mono text-[#9b6dff] shrink-0">[{i + 1}]</span>
               <span className="text-zinc-300">{w}</span>
             </li>
           ))}
@@ -262,6 +262,11 @@ function ScoreArc({ score }: { score: number }) {
   const percent = (normalized / 10) * 100;
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (percent / 100) * circumference;
+  const getScoreColor = () => {
+    if (score >= 7) return "#4a9e6a";
+    if (score >= 4) return "#facc15";
+    return "#ff3b3b";
+  };
 
   return (
     <div className="flex flex-col items-center py-4">
@@ -280,7 +285,7 @@ function ScoreArc({ score }: { score: number }) {
             cy="50"
             r="45"
             fill="none"
-            stroke="#00ff88"
+            stroke={getScoreColor()}
             strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={circumference}

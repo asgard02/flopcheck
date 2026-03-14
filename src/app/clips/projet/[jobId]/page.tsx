@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Download, Film, Loader2, Trash2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Download, Film, Loader2, Scissors, Trash2 } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { useProfile } from "@/lib/profile-context";
@@ -35,6 +35,9 @@ export default function ClipProjetPage({
   params: Promise<{ jobId: string }>;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromProjets = searchParams.get("from") === "projets";
+  const backHref = fromProjets ? "/projets?tab=clips" : "/dashboard";
   const { profile } = useProfile();
   const [jobId, setJobId] = useState<string | null>(null);
   const [job, setJob] = useState<ClipJob | null>(null);
@@ -85,7 +88,7 @@ export default function ClipProjetPage({
   if (profile?.plan === "free") {
     return (
       <div className="min-h-screen bg-[#080809] flex items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-[#00ff88]" />
+        <Loader2 className="size-8 animate-spin text-[#9b6dff]" />
       </div>
     );
   }
@@ -93,20 +96,20 @@ export default function ClipProjetPage({
   if (loading || !job) {
     return (
       <div className="min-h-screen bg-[#080809] text-zinc-300">
-        <Sidebar activeItem="clips" />
+        <Sidebar activeItem="accueil" />
         <div className="pl-[60px] min-h-screen flex flex-col">
           <Header />
           <main className="flex-1 flex items-center justify-center">
             {loading ? (
-              <Loader2 className="size-12 animate-spin text-[#00ff88]" />
+              <Loader2 className="size-12 animate-spin text-[#9b6dff]" />
             ) : (
               <div className="text-center">
                 <p className="font-mono text-zinc-500 mb-4">
                   Projet introuvable
                 </p>
                 <Link
-                  href="/clips"
-                  className="inline-flex items-center gap-2 font-mono text-sm text-[#00ff88] hover:text-[#00ff88]/80"
+                  href={backHref}
+                  className="inline-flex items-center gap-2 font-mono text-sm text-[#9b6dff] hover:text-[#9b6dff]/80"
                 >
                   <ArrowLeft className="size-4" />
                   Retour aux clips
@@ -129,49 +132,69 @@ export default function ClipProjetPage({
     setDeleting(true);
     try {
       const res = await fetch(`/api/clips/${jobId}`, { method: "DELETE" });
-      if (res.ok) router.push("/clips");
+      if (res.ok) router.push(backHref);
     } finally {
       setDeleting(false);
     }
   };
 
+  const handleRefaireClips = () => {
+    if (!job?.url) return;
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("vyrll_pending_clip_url", job.url);
+    }
+    router.push("/dashboard");
+  };
+
   return (
     <div className="min-h-screen bg-[#080809] text-zinc-300 overflow-hidden">
-      <Sidebar activeItem="clips" />
+      <Sidebar activeItem="accueil" />
       <div className="pl-[60px] min-h-screen flex flex-col">
         <Header />
 
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           <div className="max-w-6xl mx-auto">
-            {/* Back + Delete */}
+            {/* Back + Refaire + Delete */}
             <div className="flex items-center justify-between gap-4 mb-8">
               <Link
-                href="/clips"
-                className="inline-flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#00ff88] transition-colors"
+                href={backHref}
+                className="inline-flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#9b6dff] transition-colors"
               >
                 <ArrowLeft className="size-4" />
                 Retour aux clips
               </Link>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="inline-flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#ff3b3b] transition-colors disabled:opacity-50"
-              >
-                {deleting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Trash2 className="size-4" />
+              <div className="flex items-center gap-4">
+                {job.url && (
+                  <button
+                    type="button"
+                    onClick={handleRefaireClips}
+                    className="inline-flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#9b6dff] transition-colors"
+                  >
+                    <Scissors className="size-4" />
+                    Refaire des clips
+                  </button>
                 )}
-                Supprimer
-              </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="inline-flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#ff3b3b] transition-colors disabled:opacity-50"
+                >
+                  {deleting ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="size-4" />
+                  )}
+                  Supprimer
+                </button>
+              </div>
             </div>
 
             {/* Header */}
             <div className="mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00ff88]/10 border border-[#00ff88]/20 mb-4">
-                <Film className="size-3.5 text-[#00ff88]" />
-                <span className="font-mono text-xs text-[#00ff88] uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#9b6dff]/10 border border-[#9b6dff]/20 mb-4">
+                <Film className="size-3.5 text-[#9b6dff]" />
+                <span className="font-mono text-xs text-[#9b6dff] uppercase tracking-wider">
                   Projet clips
                 </span>
               </div>
@@ -189,7 +212,7 @@ export default function ClipProjetPage({
             {/* Status */}
             {job.status === "pending" || job.status === "processing" ? (
               <div className="rounded-2xl border border-[#0f0f12] bg-[#0c0c0e] p-8 text-center">
-                <Loader2 className="size-12 animate-spin text-[#00ff88] mx-auto mb-4" />
+                <Loader2 className="size-12 animate-spin text-[#9b6dff] mx-auto mb-4" />
                 <p className="font-mono text-sm text-zinc-400">
                   Téléchargement, transcription et découpe en cours…
                 </p>
@@ -222,16 +245,6 @@ export default function ClipProjetPage({
                       <div className="absolute top-3 left-3 px-2 py-1 rounded-lg bg-black/60 font-mono text-xs text-white">
                         Clip {i + 1}
                       </div>
-                      <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <a
-                          href={clip.downloadUrl}
-                          download={`clip-${i + 1}.mp4`}
-                          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-xs font-bold hover:bg-[#00ff88]/90"
-                        >
-                          <Download className="size-3.5" />
-                          Télécharger
-                        </a>
-                      </div>
                     </div>
                     <div className="p-4 flex items-center justify-between gap-2">
                       <span className="font-mono text-sm text-zinc-400">
@@ -240,7 +253,7 @@ export default function ClipProjetPage({
                       <a
                         href={clip.downloadUrl}
                         download={`clip-${i + 1}.mp4`}
-                        className="inline-flex items-center gap-2 font-mono text-xs text-[#00ff88] hover:text-[#00ff88]/80"
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-accent-gradient text-[#080809] font-mono text-xs font-bold hover:opacity-90 transition-opacity"
                       >
                         <Download className="size-3.5" />
                         Télécharger

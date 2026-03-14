@@ -4,20 +4,23 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* flopcheck design system */
+/* Vyrll design system */
 :root {
   --bg: #080809;
-  --accent: #00ff88;
+  --accent: #9b6dff;
+  --accent-gradient: linear-gradient(135deg, #2dd4bf, #7c3aed);
+  --accent-gradient-start: #2dd4bf;
+  --accent-gradient-end: #7c3aed;
   --danger: #ff3b3b;
   --surface: #0c0c0e;
   --surface-alt: #0d0d0f;
   --border: #0f0f12;
   --border-alt: #1a1a1e;
   --accent-problem: #ff3b3b;
-  --accent-fix: #00ff88;
+  --accent-fix: #4a9e6a;
   --surface-elevated: #0c0c0e;
   --surface-hover: #0d0d0f;
-  --glow-primary: 0 0 60px -12px rgba(0, 255, 136, 0.15);
+  --glow-primary: 0 0 60px -12px rgba(155, 109, 255, 0.2);
   --background: var(--bg);
   --foreground: #e4e4e7;
   --card: var(--surface);
@@ -105,6 +108,11 @@
 body {
   font-family: var(--font-dm-sans), system-ui, sans-serif;
   background: var(--bg);
+}
+
+/* Accent gradient for key CTAs (buttons, quota bar, Pro/Unlimited badges) */
+.bg-accent-gradient {
+  background: var(--accent-gradient);
 }
 
 .dark {

@@ -73,6 +73,14 @@ export default function AnalysePage() {
     }
   }, [item?.video_url, reAnalyzing, refresh]);
 
+  const handleGenerateClip = useCallback(() => {
+    if (!item?.video_url) return;
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("vyrll_pending_clip_url", item.video_url);
+    }
+    router.push("/dashboard");
+  }, [item?.video_url, router]);
+
   const status = item?.status;
   const diagnosis = item?.diagnosis;
   const videoData = item?.video_data;
@@ -107,8 +115,8 @@ export default function AnalysePage() {
             </p>
             <button
               type="button"
-              onClick={() => router.push("/dashboard")}
-              className="flex items-center gap-2 font-mono text-sm text-[#00ff88] hover:underline"
+              onClick={() => router.push("/clips")}
+              className="flex items-center gap-2 font-mono text-sm text-[#9b6dff] hover:underline"
             >
               Retour à l&apos;accueil
             </button>
@@ -140,7 +148,7 @@ export default function AnalysePage() {
                     setPollTimeout(false);
                     refresh();
                   }}
-                  className="font-mono text-sm text-[#00ff88] hover:underline"
+                  className="font-mono text-sm text-[#9b6dff] hover:underline"
                 >
                   Réessayer
                 </button>
@@ -155,7 +163,7 @@ export default function AnalysePage() {
             )}
             <button
               type="button"
-              onClick={() => router.push("/dashboard")}
+              onClick={() => router.push("/clips")}
               className="font-mono text-sm text-zinc-500 hover:text-zinc-400 transition-colors"
             >
               Retour au dashboard
@@ -178,8 +186,8 @@ export default function AnalysePage() {
             </p>
             <button
               type="button"
-              onClick={() => router.push("/dashboard")}
-              className="flex items-center gap-2 font-mono text-sm text-[#00ff88] hover:underline"
+              onClick={() => router.push("/clips")}
+              className="flex items-center gap-2 font-mono text-sm text-[#9b6dff] hover:underline"
             >
               Retour à l&apos;accueil
             </button>
@@ -199,8 +207,8 @@ export default function AnalysePage() {
             <p className="font-mono text-sm text-zinc-500">Données incomplètes.</p>
             <button
               type="button"
-              onClick={() => router.push("/dashboard")}
-              className="font-mono text-sm text-[#00ff88] hover:underline"
+              onClick={() => router.push("/clips")}
+              className="font-mono text-sm text-[#9b6dff] hover:underline"
             >
               Retour à l&apos;accueil
             </button>
@@ -225,7 +233,9 @@ export default function AnalysePage() {
       videoId={item.video_id}
       videoData={vd}
       diagnosis={diagnosis}
-      onBack={() => router.push("/dashboard")}
+      videoUrl={item.video_url}
+      onGenerateClip={handleGenerateClip}
+      onBack={() => router.push("/clips")}
       onReAnalyze={handleReAnalyze}
       reAnalyzing={reAnalyzing}
       reAnalyzeError={reAnalyzeError}

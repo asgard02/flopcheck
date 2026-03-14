@@ -11,24 +11,25 @@ import {
   Download,
   Settings,
   LogOut,
+  Search,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useProfile } from "@/lib/profile-context";
 
 type SidebarProps = {
-  activeItem?: "accueil" | "projets" | "clips" | "analytics" | "exporter" | "parametres";
+  activeItem?: "accueil" | "projets" | "analyse" | "analytics" | "exporter" | "parametres";
 };
 
 const navItems: {
-  id: "accueil" | "projets" | "clips" | "analytics" | "exporter" | "parametres";
+  id: "accueil" | "projets" | "analyse" | "analytics" | "exporter" | "parametres";
   icon: typeof Home;
   label: string;
   href: string;
   comingSoon?: boolean;
 }[] = [
-  { id: "accueil", icon: Home, label: "Accueil", href: "/dashboard" },
+  { id: "accueil", icon: Film, label: "Accueil", href: "/dashboard" },
   { id: "projets", icon: FolderKanban, label: "Projets", href: "/projets" },
-  { id: "clips", icon: Film, label: "Clips", href: "/clips" },
+  { id: "analyse", icon: Search, label: "Analyse", href: "/clips" },
   { id: "analytics", icon: BarChart3, label: "Analytics", href: "/analytics" },
   { id: "exporter", icon: Download, label: "Exporter", href: "/exporter" },
   { id: "parametres", icon: Settings, label: "Paramètres", href: "/parametres" },
@@ -61,13 +62,13 @@ export function Sidebar({ activeItem = "accueil" }: SidebarProps) {
     >
       {/* Logo */}
       <div className="flex h-14 items-center shrink-0 px-3 border-b border-[#0f0f12]">
-        <img src="/logo.svg" alt="flopcheck" className="size-8 shrink-0" />
+        <img src="/logo.svg" alt="Vyrll" className="size-8 shrink-0" />
         {hovered && (
           <span
             className="ml-3 font-[family-name:var(--font-syne)] font-bold text-white text-sm whitespace-nowrap opacity-0 animate-in fade-in duration-150"
             style={{ opacity: hovered ? 1 : 0 }}
           >
-            flopcheck
+            Vyrll
           </span>
         )}
       </div>
@@ -83,7 +84,7 @@ export function Sidebar({ activeItem = "accueil" }: SidebarProps) {
             <>
               <span
                 className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 rounded-r transition-opacity ${
-                  isActive ? "bg-[#00ff88] opacity-100" : "opacity-0"
+                  isActive ? "bg-[#9b6dff] opacity-100" : "opacity-0"
                 }`}
                 style={{ height: "60%" }}
               />
@@ -91,7 +92,7 @@ export function Sidebar({ activeItem = "accueil" }: SidebarProps) {
                 <Icon className="size-5" />
                 {comingSoon && (
                   <span
-                    className="shrink-0 px-1 rounded text-[8px] font-medium bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/30"
+                    className="shrink-0 px-1 rounded text-[8px] font-medium bg-[#9b6dff]/20 text-[#9b6dff] border border-[#9b6dff]/30"
                     title="Coming soon"
                   >
                     soon
@@ -112,7 +113,7 @@ export function Sidebar({ activeItem = "accueil" }: SidebarProps) {
           const baseClass =
             "relative flex items-center gap-3 px-3 py-2.5 rounded-md text-left w-full transition-colors min-h-[44px] " +
             (isActive
-              ? "bg-[#0d0d0f] text-[#00ff88]"
+              ? "bg-[#0d0d0f] text-[#9b6dff]"
               : "text-zinc-500 hover:text-zinc-300 hover:bg-[#0d0d0f]");
 
           return (
@@ -126,7 +127,7 @@ export function Sidebar({ activeItem = "accueil" }: SidebarProps) {
       {/* Avatar + Logout */}
       <div className="border-t border-[#0f0f12] p-2">
         <div className="flex items-center gap-3 px-3 py-2 rounded-md text-zinc-500 min-h-[44px]">
-          <div className="size-8 shrink-0 rounded-full bg-[#1a1a1e] flex items-center justify-center font-[family-name:var(--font-syne)] font-bold text-sm text-[#00ff88]">
+          <div className="size-8 shrink-0 rounded-full bg-[#1a1a1e] flex items-center justify-center font-[family-name:var(--font-syne)] font-bold text-sm text-[#9b6dff]">
             {getInitial(profile?.username ?? null, profile?.email)}
           </div>
           {hovered && (

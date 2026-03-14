@@ -103,7 +103,7 @@ export function ProjectSection({ history, onSelectProject, onDelete }: ProjectSe
               />
             )}
             <div className="absolute inset-0 flex items-center justify-center bg-[#080809]/70">
-              <span className="font-mono text-sm text-zinc-400 group-hover:text-[#00ff88] transition-colors flex items-center gap-1">
+              <span className="font-mono text-sm text-zinc-400 group-hover:text-[#9b6dff] transition-colors flex items-center gap-1">
                 Appuyer pour plus
                 <ChevronRight className="size-4" />
               </span>

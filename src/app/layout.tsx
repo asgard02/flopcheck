@@ -22,25 +22,25 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://flopcheck.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vyrll.com";
 
 export const metadata: Metadata = {
-  title: "flopcheck — YouTube Video Analyzer",
-  description: "Pourquoi ta vidéo a floppé ? Diagnostic IA brutal pour tes vidéos YouTube.",
+  title: "Vyrll — Turn your YouTube & Twitch videos into viral clips",
+  description: "Turn your YouTube & Twitch videos into viral clips. AI-powered clip generator (9:16, 1:1). YouTube analysis secondary.",
   icons: {
     icon: "/favicon.svg",
   },
   openGraph: {
-    title: "flopcheck — YouTube Video Analyzer",
-    description: "Pourquoi ta vidéo a floppé ? Diagnostic IA brutal pour tes vidéos YouTube.",
+    title: "Vyrll — Turn your YouTube & Twitch videos into viral clips",
+    description: "Turn your YouTube & Twitch videos into viral clips. AI-powered clip generator (9:16, 1:1). YouTube analysis secondary.",
     url: siteUrl,
-    siteName: "flopcheck",
+    siteName: "Vyrll",
     images: [
       {
         url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "flopcheck — YouTube Video Analyzer",
+        alt: "Vyrll — Turn your YouTube & Twitch videos into viral clips",
       },
     ],
     locale: "fr_FR",
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "flopcheck — YouTube Video Analyzer",
-    description: "Pourquoi ta vidéo a floppé ? Diagnostic IA brutal pour tes vidéos YouTube.",
+    title: "Vyrll — Turn your YouTube & Twitch videos into viral clips",
+    description: "Turn your YouTube & Twitch videos into viral clips. AI-powered clip generator (9:16, 1:1). YouTube analysis secondary.",
     images: [`${siteUrl}/og-image.png`],
   },
 };

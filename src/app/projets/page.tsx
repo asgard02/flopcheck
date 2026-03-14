@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search, ChevronRight, Film, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -21,6 +21,7 @@ type ProjectTab = "analyses" | "clips";
 type ClipJob = {
   id: string;
   url: string;
+  video_title?: string | null;
   duration: number;
   status: string;
   error?: string | null;
@@ -29,7 +30,7 @@ type ClipJob = {
 };
 
 function getScoreColor(score: number) {
-  if (score >= 7) return "#00ff88";
+  if (score >= 7) return "#4a9e6a";
   if (score >= 5) return "#ffaa00";
   return "#ff4444";
 }
@@ -49,11 +50,14 @@ function formatRelativeDate(dateStr: string): string {
 
 export default function ProjetsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { profile } = useProfile();
   const { history: analyses, isLoading: loading } = useHistory();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterTab>("all");
-  const [projectTab, setProjectTab] = useState<ProjectTab>("analyses");
+  const initialTab =
+    (searchParams.get("tab") as ProjectTab | null) === "clips" ? "clips" : "analyses";
+  const [projectTab, setProjectTab] = useState<ProjectTab>(initialTab);
   const [clipJobs, setClipJobs] = useState<ClipJob[]>([]);
   const [clipsLoading, setClipsLoading] = useState(false);
 
@@ -136,7 +140,7 @@ export default function ProjetsPage() {
                   onClick={() => setProjectTab(tab)}
                   className={`font-mono text-sm px-4 py-2 rounded-lg border transition-all ${
                     projectTab === tab
-                      ? "border-[#00ff88] text-[#00ff88] bg-[#00ff88]/5"
+                      ? "border-[#4a9e6a] text-[#4a9e6a] bg-[#4a9e6a]/5"
                       : "border-[#0f0f12] text-zinc-500 hover:text-zinc-300 hover:border-[#1a1a1e]"
                   }`}
                 >
@@ -155,7 +159,7 @@ export default function ProjetsPage() {
                   onClick={() => setFilter(tab)}
                   className={`font-mono text-xs px-4 py-2 rounded-lg border transition-all shrink-0 ${
                     filter === tab
-                      ? "border-[#00ff88] text-[#00ff88] bg-[#00ff88]/5"
+                      ? "border-[#4a9e6a] text-[#4a9e6a] bg-[#4a9e6a]/5"
                       : "border-[#0f0f12] text-zinc-500 hover:text-zinc-300 hover:border-[#1a1a1e]"
                   }`}
                 >
@@ -173,7 +177,7 @@ export default function ProjetsPage() {
               /* Clips projects */
               clipsLoading ? (
                 <div className="flex items-center justify-center py-20">
-                  <Loader2 className="size-10 animate-spin text-[#00ff88]" />
+                  <Loader2 className="size-10 animate-spin text-[#9b6dff]" />
                 </div>
               ) : clipJobs.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
@@ -185,8 +189,8 @@ export default function ProjetsPage() {
                     Génère des clips viraux pour les voir ici.
                   </p>
                   <Link
-                    href="/clips"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-sm font-bold hover:bg-[#00ff88]/90 transition-all"
+                    href="/dashboard"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-gradient text-[#080809] font-mono text-sm font-bold hover:opacity-90 transition-all"
                   >
                     <Film className="size-4" />
                     Créer des clips →
@@ -199,13 +203,13 @@ export default function ProjetsPage() {
                       key={job.id}
                       href={
                         job.status === "done"
-                          ? `/clips/projet/${job.id}`
-                          : "/clips"
+                          ? `/clips/projet/${job.id}?from=projets`
+                          : "/dashboard"
                       }
                       className="w-full text-left rounded-xl border border-[#0f0f12] bg-[#0c0c0e] overflow-hidden hover:border-[#1a1a1e] transition-all group cursor-pointer"
                     >
                       <div className="w-full h-[140px] overflow-hidden bg-[#0d0d0f] relative flex items-center justify-center">
-                        <Film className="size-16 text-zinc-700 group-hover:text-[#00ff88]/80 transition-colors absolute" aria-hidden />
+                        <Film className="size-16 text-zinc-700 group-hover:text-[#9b6dff]/80 transition-colors absolute" aria-hidden />
                         {(() => {
                           const videoId = extractVideoId(job.url);
                           return videoId ? (
@@ -224,14 +228,19 @@ export default function ProjetsPage() {
                         })()}
                       </div>
                       <div className="p-4">
-                        <p className="font-mono text-xs text-zinc-500 truncate mb-2">
-                          {job.url.replace(/^https?:\/\//, "").slice(0, 45)}…
+                        <p
+                          className="font-mono text-xs text-zinc-500 truncate mb-2"
+                          title={job.video_title ?? job.url}
+                        >
+                          {job.video_title && job.video_title.trim().length > 0
+                            ? job.video_title
+                            : job.url.replace(/^https?:\/\//, "").slice(0, 45) + "…"}
                         </p>
                         <div className="flex items-center justify-between gap-2 mb-3">
                           <span
                             className={`inline-flex items-center gap-1 font-mono text-xs ${
                               job.status === "done"
-                                ? "text-[#00ff88]"
+                                ? "text-[#4a9e6a]"
                                 : job.status === "error"
                                   ? "text-[#ff3b3b]"
                                   : "text-zinc-500"
@@ -254,7 +263,7 @@ export default function ProjetsPage() {
                             {job.duration}s · {formatRelativeDate(job.created_at)}
                           </span>
                         </div>
-                        <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-[#0f0f12] bg-[#0d0d0f] font-mono text-xs text-zinc-300 group-hover:bg-[#1a1a1e] group-hover:text-[#00ff88] group-hover:border-[#1a1a1e] transition-all">
+                        <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-[#0f0f12] bg-[#0d0d0f] font-mono text-xs text-zinc-300 group-hover:bg-[#1a1a1e] group-hover:text-[#9b6dff] group-hover:border-[#1a1a1e] transition-all">
                           {job.status === "done" ? "Voir le projet" : "Voir"}
                           <ChevronRight className="size-4" />
                         </div>
@@ -290,8 +299,8 @@ export default function ProjetsPage() {
                   Lance ta première analyse pour voir tes projets ici.
                 </p>
                 <Link
-                  href="/dashboard"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-sm font-bold hover:bg-[#00ff88]/90 transition-all"
+                  href="/clips"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-gradient text-[#080809] font-mono text-sm font-bold hover:opacity-90 transition-all"
                 >
                   Analyser ma première vidéo →
                 </Link>
@@ -341,7 +350,7 @@ export default function ProjetsPage() {
                             {formatRelativeDate(item.created_at)}
                           </span>
                         </div>
-                        <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-[#0f0f12] bg-[#0d0d0f] font-mono text-xs text-zinc-300 group-hover:bg-[#1a1a1e] group-hover:text-[#00ff88] group-hover:border-[#1a1a1e] transition-all">
+                        <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-[#0f0f12] bg-[#0d0d0f] font-mono text-xs text-zinc-300 group-hover:bg-[#1a1a1e] group-hover:text-[#9b6dff] group-hover:border-[#1a1a1e] transition-all">
                           Voir l&apos;analyse
                           <ChevronRight className="size-4" />
                         </div>

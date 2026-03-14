@@ -48,7 +48,7 @@ export function Header({ refreshBadge = 0 }: HeaderProps) {
           onClick={() => setOpen((o) => !o)}
           className="font-mono text-xs text-zinc-500 px-3 py-1.5 rounded-md bg-[#0c0c0e] border border-[#0f0f12] hover:border-[#1a1a1e] hover:text-zinc-400 transition-colors cursor-pointer flex items-center gap-1.5"
         >
-          <Zap className="size-3.5 text-[#00ff88]" />
+          <Zap className="size-3.5 text-[#9b6dff]" />
           {analysesUsed}/{analysesLimit} analyses
         </button>
 
@@ -58,7 +58,7 @@ export function Header({ refreshBadge = 0 }: HeaderProps) {
               <span className="font-[family-name:var(--font-syne)] font-bold text-white">
                 {PLAN_LABELS[plan] ?? plan}
               </span>
-              <span className="rounded-md bg-[#00ff88]/20 px-2 py-0.5 font-mono text-[10px] font-medium text-[#00ff88]">
+              <span className="rounded-md bg-accent-gradient px-2 py-0.5 font-mono text-[10px] font-medium text-[#080809]">
                 Actif
               </span>
             </div>
@@ -67,7 +67,7 @@ export function Header({ refreshBadge = 0 }: HeaderProps) {
               <div className="flex items-center justify-between mb-1">
                 <span className="font-mono text-xs text-zinc-400">Analyses</span>
                 <span className="font-mono text-xs text-white flex items-center gap-1">
-                  <Zap className="size-3.5 text-[#00ff88]" />
+                  <Zap className="size-3.5 text-[#9b6dff]" />
                   {analysesUsed} / {analysesLimit}
                 </span>
               </div>
@@ -80,7 +80,7 @@ export function Header({ refreshBadge = 0 }: HeaderProps) {
               <Link
                 href="/parametres?tab=plan"
                 onClick={() => setOpen(false)}
-                className="block w-full py-2.5 rounded-lg font-mono text-xs font-medium text-center bg-[#00ff88] text-[#080809] hover:bg-[#00ff88]/90 transition-colors"
+                className="block w-full py-2.5 rounded-lg font-mono text-xs font-medium text-center bg-accent-gradient text-[#080809] hover:opacity-90 transition-colors"
               >
                 Ajouter plus d&apos;analyses
               </Link>
@@ -98,7 +98,7 @@ export function Header({ refreshBadge = 0 }: HeaderProps) {
 
       <Link
         href="/parametres?tab=plan"
-        className="font-mono text-xs font-medium px-4 py-2 rounded-md bg-[#00ff88] text-[#080809] hover:bg-[#00ff88]/90 transition-colors"
+        className="font-mono text-xs font-medium px-4 py-2 rounded-md bg-accent-gradient text-[#080809] hover:opacity-90 transition-colors"
       >
         Upgrade
       </Link>

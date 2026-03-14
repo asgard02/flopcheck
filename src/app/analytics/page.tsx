@@ -29,7 +29,7 @@ const COMPONENT_LABELS: Record<string, string> = {
 };
 
 function getScoreColor(score: number) {
-  if (score >= 7) return "#00ff88";
+  if (score >= 7) return "#4a9e6a";
   if (score >= 5) return "#ffaa00";
   return "#ff4444";
 }
@@ -109,7 +109,7 @@ export default function AnalyticsPage() {
     if (!active || !payload?.length) return null;
     return (
       <div className="rounded-lg border border-[#111] bg-[#0a0a0c] px-3 py-2 shadow-xl">
-        <p className="font-mono text-xs text-[#00ff88]">{payload[0]?.value ?? 0}/10</p>
+        <p className="font-mono text-xs text-[#9b6dff]">{payload[0]?.value ?? 0}/10</p>
       </div>
     );
   };
@@ -155,7 +155,7 @@ export default function AnalyticsPage() {
               </p>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-sm font-bold hover:bg-[#00ff88]/90 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-accent-gradient text-[#080809] font-mono text-sm font-bold hover:opacity-90 transition-all"
               >
                 Analyser des vidéos →
               </Link>
@@ -239,10 +239,10 @@ export default function AnalyticsPage() {
                     <Line
                       type="monotone"
                       dataKey="score"
-                      stroke="#00ff88"
+                      stroke="#9b6dff"
                       strokeWidth={2}
-                      dot={{ fill: "#00ff88", stroke: "#0a0a0c", strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: "#00ff88", stroke: "#0a0a0c", strokeWidth: 2 }}
+                      dot={{ fill: "#9b6dff", stroke: "#0a0a0c", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: "#9b6dff", stroke: "#0a0a0c", strokeWidth: 2 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -287,7 +287,7 @@ export default function AnalyticsPage() {
                             weakest && entry.key === weakest.key
                               ? "#ff4444"
                               : entry.value >= 7
-                                ? "#00ff88"
+                                ? "#4a9e6a"
                                 : entry.value >= 5
                                   ? "#ffaa00"
                                   : "#ff4444"

@@ -1,4 +1,4 @@
--- Table pour l'historique des analyses flopcheck
+-- Table pour l'historique des analyses Vyrll
 create table if not exists public.analyses_history (
   id uuid primary key default gen_random_uuid(),
   video_id text not null,

@@ -157,7 +157,7 @@ async function getOpenAIDiagnosis(videoData: YouTubeVideoData): Promise<Diagnosi
     channelTitle: videoData.channelTitle,
   });
 
-  const prompt = `Tu es flopcheck, un analyste YouTube senior brutal et précis. Tu donnes des diagnostics sans bullshit, toujours basés sur les chiffres réels.
+  const prompt = `Tu es Vyrll, un analyste YouTube senior brutal et précis. Tu donnes des diagnostics sans bullshit, toujours basés sur les chiffres réels.
 
 ═══════════════════════════════
 ÉTAPE 1 — RAISONNEMENT INTERNE (ne pas inclure dans le JSON)

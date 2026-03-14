@@ -13,6 +13,7 @@ import {
   ExternalLink,
   RefreshCw,
   X,
+  Scissors,
 } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -80,6 +81,10 @@ type ResultViewProps = {
   refreshBadge?: number;
   /** When true, renders only the content (no Sidebar/Header) for embedding in other pages */
   embedMode?: boolean;
+  /** URL de la vidéo pour générer des clips (affiche le bouton "Générer clip") */
+  videoUrl?: string;
+  /** Callback quand on clique sur "Générer clip" */
+  onGenerateClip?: (url: string) => void;
 };
 
 type TabId = "overview" | "seo" | "wins";
@@ -98,6 +103,8 @@ export function ResultView({
   onDismissReAnalyzeError,
   refreshBadge = 0,
   embedMode = false,
+  videoUrl,
+  onGenerateClip,
 }: ResultViewProps) {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -146,7 +153,7 @@ export function ResultView({
       )}
       {/* Hero */}
           <div className="relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#00ff88]/5 via-transparent to-[#080809]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#9b6dff]/5 via-transparent to-[#080809]" />
             <div className={`relative px-6 pb-12 ${embedMode ? "pt-4" : "pt-8"}`}>
               <div className="max-w-4xl mx-auto">
                 {!embedMode && (
@@ -154,18 +161,28 @@ export function ResultView({
                     <button
                       type="button"
                       onClick={onBack}
-                      className="group flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#00ff88] transition-colors"
+                      className="group flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#9b6dff] transition-colors"
                     >
                       <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
                       Retour
                     </button>
                     <div className="flex items-center gap-4">
+                      {videoUrl && onGenerateClip && (
+                        <button
+                          type="button"
+                          onClick={() => onGenerateClip(videoUrl)}
+                          className="flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#9b6dff] transition-colors"
+                        >
+                          <Scissors className="size-4" />
+                          Générer clip
+                        </button>
+                      )}
                       {onReAnalyze && (
                         <button
                           type="button"
                           onClick={onReAnalyze}
                           disabled={reAnalyzing}
-                          className="flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#00ff88] transition-colors disabled:opacity-50"
+                          className="flex items-center gap-2 font-mono text-sm text-zinc-500 hover:text-[#9b6dff] transition-colors disabled:opacity-50"
                         >
                           <RefreshCw className={`size-4 ${reAnalyzing ? "animate-spin" : ""}`} />
                           {reAnalyzing ? "Re-analyse..." : "Re-analyser"}
@@ -193,7 +210,7 @@ export function ResultView({
                       href={`https://youtube.com/watch?v=${videoId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative block rounded-xl overflow-hidden border border-[#0f0f12] shadow-2xl ring-1 ring-white/5 transition-all hover:ring-[#00ff88]/30 hover:scale-[1.02]"
+                      className="group relative block rounded-xl overflow-hidden border border-[#0f0f12] shadow-2xl ring-1 ring-white/5 transition-all hover:ring-[#9b6dff]/30 hover:scale-[1.02]"
                     >
                       <img
                         src={getYouTubeThumbnailUrl(videoId)}
@@ -206,8 +223,8 @@ export function ResultView({
                         }}
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity p-3 rounded-full bg-[#00ff88]/20 backdrop-blur-sm">
-                          <ExternalLink className="size-5 text-[#00ff88]" />
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity p-3 rounded-full bg-[#9b6dff]/20 backdrop-blur-sm">
+                          <ExternalLink className="size-5 text-[#9b6dff]" />
                         </div>
                       </div>
                     </a>
@@ -234,7 +251,7 @@ export function ResultView({
                     {diag.ratio_analysis && (
                       <div className="rounded-xl border border-[#0f0f12] bg-[#0c0c0e]/60 p-4 space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-lg font-bold text-[#00ff88]">
+                          <span className="font-mono text-lg font-bold text-[#9b6dff]">
                             {diag.ratio_analysis.ratio.toFixed(2)}
                           </span>
                           <span className="font-mono text-xs text-zinc-500">ratio vues/abonnés</span>
@@ -251,8 +268,8 @@ export function ResultView({
                     <div className="rounded-xl border border-[#0f0f12] bg-[#0c0c0e]/80 backdrop-blur-sm p-4">
                       <p className="text-sm text-zinc-300 leading-relaxed">{diag.verdict}</p>
                       {diag.overperformed && (
-                        <span className="inline-flex items-center gap-1.5 mt-2 font-mono text-xs text-[#00ff88]">
-                          <span className="size-1.5 rounded-full bg-[#00ff88] animate-pulse" />
+                        <span className="inline-flex items-center gap-1.5 mt-2 font-mono text-xs text-[#9b6dff]">
+                          <span className="size-1.5 rounded-full bg-[#9b6dff] animate-pulse" />
                           Overperformed
                         </span>
                       )}
@@ -274,7 +291,7 @@ export function ResultView({
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-3 font-mono text-sm border-b-2 transition-colors ${
                       activeTab === tab.id
-                        ? "border-[#00ff88] text-[#00ff88]"
+                        ? "border-[#9b6dff] text-[#9b6dff]"
                         : "border-transparent text-zinc-500 hover:text-zinc-300"
                     }`}
                   >
@@ -356,7 +373,7 @@ export function ResultView({
                       <ul className="space-y-3">
                         {(diag.quickwins ?? []).map((w, i) => (
                           <li key={i} className="flex gap-3 text-sm">
-                            <span className="font-mono text-[#00ff88] shrink-0">[{i + 1}]</span>
+                            <span className="font-mono text-[#9b6dff] shrink-0">[{i + 1}]</span>
                             <span className="text-zinc-300">{w}</span>
                           </li>
                         ))}
@@ -391,7 +408,7 @@ export function ResultView({
                           <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-1">
                             Amélioré
                           </p>
-                          <p className="text-sm text-[#00ff88] font-medium">{diag.title_fixed}</p>
+                          <p className="text-sm text-[#4a9e6a] font-medium">{diag.title_fixed}</p>
                         </div>
                         <CopyBtn
                           onClick={() => copyToClipboard(diag.title_fixed ?? "", "title")}
@@ -419,7 +436,7 @@ export function ResultView({
                             <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-1">
                               Correction
                             </p>
-                            <p className="text-sm text-[#00ff88] whitespace-pre-wrap">
+                            <p className="text-sm text-[#4a9e6a] whitespace-pre-wrap">
                               {diag.description_fixed}
                             </p>
                           </div>
@@ -452,7 +469,7 @@ export function ResultView({
                           {(diag.tags_fixed ?? []).map((t, i) => (
                             <span
                               key={i}
-                              className="font-mono text-xs px-2.5 py-1 rounded-lg bg-[#00ff88]/10 text-[#00ff88] border border-[#00ff88]/20"
+                              className="font-mono text-xs px-2.5 py-1 rounded-lg bg-[#4a9e6a]/10 text-[#4a9e6a] border border-[#4a9e6a]/20"
                             >
                               {t}
                             </span>
@@ -479,13 +496,13 @@ export function ResultView({
                         {(diag.quickwins ?? []).map((w, i) => (
                           <li
                             key={i}
-                            className="flex gap-4 p-4 rounded-xl bg-[#0c0c0e] border border-[#0f0f12] group hover:border-[#00ff88]/20 transition-colors"
+                            className="flex gap-4 p-4 rounded-xl bg-[#0c0c0e] border border-[#0f0f12] group hover:border-[#9b6dff]/20 transition-colors"
                           >
-                            <span className="flex items-center justify-center size-8 rounded-lg bg-[#00ff88]/10 text-[#00ff88] font-mono text-sm font-bold shrink-0">
+                            <span className="flex items-center justify-center size-8 rounded-lg bg-[#9b6dff]/10 text-[#9b6dff] font-mono text-sm font-bold shrink-0">
                               {i + 1}
                             </span>
                             <span className="text-sm text-zinc-300 pt-1">{w}</span>
-                            <ChevronRight className="size-4 text-zinc-600 group-hover:text-[#00ff88] shrink-0 ml-auto self-center transition-colors" />
+                            <ChevronRight className="size-4 text-zinc-600 group-hover:text-[#9b6dff] shrink-0 ml-auto self-center transition-colors" />
                           </li>
                         ))}
                       </ul>
@@ -546,7 +563,7 @@ function ScoreRing({ score }: { score: number }) {
   const strokeDashoffset = circumference - (percent / 100) * circumference;
 
   const getScoreColor = () => {
-    if (score >= 7) return "#00ff88";
+    if (score >= 7) return "#4a9e6a";
     if (score >= 4) return "#facc15";
     return "#ff3b3b";
   };
@@ -603,7 +620,7 @@ function Section({
           variant === "problem"
             ? "bg-[#ff3b3b]/5"
             : variant === "success"
-              ? "bg-[#00ff88]/5"
+              ? "bg-[#4a9e6a]/5"
               : "bg-[#0d0d0f]"
         }`}
       >
@@ -632,7 +649,7 @@ function CopyBtn({
       onClick={onClick}
       className={`shrink-0 flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-xs transition-all ${
         copied
-          ? "text-[#00ff88] bg-[#00ff88]/10"
+          ? "text-[#4a9e6a] bg-[#4a9e6a]/10"
           : "text-zinc-500 hover:bg-[#0d0d0f] hover:text-zinc-300"
       } ${className}`}
     >

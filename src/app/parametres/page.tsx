@@ -24,9 +24,9 @@ const TABS = [
 ];
 
 function Badge({ plan }: { plan: string }) {
-  const styles: Record<string, { bg: string; color: string; label: string }> = {
+  const styles: Record<string, { bg: string; color: string; borderColor?: string; label: string }> = {
     free: { bg: "#1a1a1e", color: "#888", label: "FREE" },
-    pro: { bg: "#00ff8820", color: "#00ff88", label: "PRO" },
+    pro: { bg: "linear-gradient(135deg, #2dd4bf, #7c3aed)", color: "#080809", borderColor: "rgba(124, 58, 237, 0.4)", label: "PRO" },
     unlimited: { bg: "#ffd70020", color: "#ffd700", label: "UNLIMITED" },
   };
   const s = styles[plan] ?? styles.free;
@@ -36,7 +36,7 @@ function Badge({ plan }: { plan: string }) {
       style={{
         background: s.bg,
         color: s.color,
-        borderColor: `${s.color}40`,
+        borderColor: s.borderColor ?? `${s.color}40`,
       }}
     >
       {s.label}
@@ -57,7 +57,7 @@ function Toast({
       className={`fixed bottom-8 right-8 z-[1000] flex items-center gap-2.5 rounded-xl px-5 py-3 font-mono text-sm animate-in fade-in slide-in-from-bottom-4 duration-250 ${
         type === "error"
           ? "bg-[#ff3b3b]/10 border border-[#ff3b3b]/60 text-[#ff3b3b]"
-          : "bg-[#00ff88]/10 border border-[#00ff88]/60 text-[#00ff88]"
+          : "bg-[#9b6dff]/10 border border-[#9b6dff]/60 text-[#9b6dff]"
       }`}
     >
       {type === "error" ? <X className="size-4" /> : <Check className="size-4" />}
@@ -119,7 +119,7 @@ function TabCompte({
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="size-14 rounded-full bg-gradient-to-br from-[#00ff88]/30 to-[#00ff88]/10 border border-[#00ff88]/40 flex items-center justify-center font-[family-name:var(--font-syne)] font-bold text-[#00ff88] text-xl">
+        <div className="size-14 rounded-full bg-gradient-to-br from-[#9b6dff]/30 to-[#9b6dff]/10 border border-[#9b6dff]/40 flex items-center justify-center font-[family-name:var(--font-syne)] font-bold text-[#9b6dff] text-xl">
           {(profile.username ?? profile.email ?? "U").charAt(0).toUpperCase()}
         </div>
         <div>
@@ -171,7 +171,7 @@ function TabCompte({
         type="button"
         onClick={handleSave}
         disabled={loading}
-        className="h-11 px-5 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-sm font-bold hover:bg-[#00ff88]/90 transition-all disabled:opacity-60 flex items-center gap-2"
+        className="h-11 px-5 rounded-lg bg-[#9b6dff] text-[#080809] font-mono text-sm font-bold hover:bg-[#9b6dff]/90 transition-all disabled:opacity-60 flex items-center gap-2"
       >
         {loading && <Loader2 className="size-4 animate-spin" />}
         Enregistrer les modifications
@@ -194,7 +194,7 @@ function TabPlan({
   const used = profile.analyses_used ?? 0;
   const limit = profile.analyses_limit ?? 3;
   const pct = limit > 0 ? Math.round((used / limit) * 100) : 0;
-  const barColor = pct > 80 ? "#ff3b3b" : pct > 50 ? "#ffd700" : "#00ff88";
+  const barColor = pct > 80 ? "#ff3b3b" : pct > 50 ? "#ffd700" : "#4a9e6a";
 
   const handleRedeem = async () => {
     if (!code.trim()) return;
@@ -296,11 +296,11 @@ function TabPlan({
           <div
             key={p.id}
             className={`rounded-xl border p-4 flex flex-col gap-3 relative ${
-              p.accent ? "bg-[#00ff88]/5" : "bg-[#0c0c0e]"
+              p.accent ? "bg-[#9b6dff]/5" : "bg-[#0c0c0e]"
             } ${
               profile.plan === p.id
                 ? p.id === "pro"
-                  ? "border-[#00ff88]/60"
+                  ? "border-[#9b6dff]/60"
                   : p.id === "unlimited"
                     ? "border-[#ffd700]/60"
                     : "border-zinc-600"
@@ -308,7 +308,7 @@ function TabPlan({
             }`}
           >
             {profile.plan === p.id && (
-              <span className="absolute top-2.5 right-2.5 font-mono text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/40">
+              <span className="absolute top-2.5 right-2.5 font-mono text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#9b6dff]/20 text-[#9b6dff] border border-[#9b6dff]/40">
                 ACTIF
               </span>
             )}
@@ -324,7 +324,7 @@ function TabPlan({
                   key={f}
                   className="font-mono text-xs text-zinc-500 flex gap-1.5 items-start"
                 >
-                  <span className="text-[#00ff88] mt-0.5">—</span>
+                  <span className="text-[#9b6dff] mt-0.5">—</span>
                   {f}
                 </li>
               ))}
@@ -351,7 +351,7 @@ function TabPlan({
             type="button"
             onClick={handleRedeem}
             disabled={loading}
-            className="h-11 px-5 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-sm font-bold hover:bg-[#00ff88]/90 transition-all disabled:opacity-60 flex items-center gap-2"
+            className="h-11 px-5 rounded-lg bg-[#9b6dff] text-[#080809] font-mono text-sm font-bold hover:bg-[#9b6dff]/90 transition-all disabled:opacity-60 flex items-center gap-2"
           >
             {loading ? <Loader2 className="size-4 animate-spin" /> : null}
             Activer
@@ -454,7 +454,7 @@ function TabSecurite() {
               mismatch
                 ? "border border-[#ff3b3b]/60"
                 : match
-                  ? "border border-[#00ff88]/60"
+                  ? "border border-[#9b6dff]/60"
                   : "border border-[#0f0f12] focus:border-[#1a1a1e] focus:ring-1 focus:ring-[#1a1a1e]"
             }`}
           />
@@ -464,7 +464,7 @@ function TabSecurite() {
             </p>
           )}
           {match && (
-            <p className="font-mono text-[11px] text-[#00ff88] mt-1.5">
+            <p className="font-mono text-[11px] text-[#9b6dff] mt-1.5">
               Les mots de passe correspondent.
             </p>
           )}
@@ -476,7 +476,7 @@ function TabSecurite() {
           type="button"
           onClick={handleSave}
           disabled={loading}
-          className="h-11 px-5 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-sm font-bold hover:bg-[#00ff88]/90 transition-all disabled:opacity-60 flex items-center gap-2 w-fit"
+          className="h-11 px-5 rounded-lg bg-[#9b6dff] text-[#080809] font-mono text-sm font-bold hover:bg-[#9b6dff]/90 transition-all disabled:opacity-60 flex items-center gap-2 w-fit"
         >
           {loading && <Loader2 className="size-4 animate-spin" />}
           Mettre à jour le mot de passe
@@ -657,7 +657,7 @@ export default function ParametresPage() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-[#080809] text-zinc-300 flex items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-[#00ff88]" />
+        <Loader2 className="size-8 animate-spin text-[#9b6dff]" />
       </div>
     );
   }
@@ -687,7 +687,7 @@ export default function ParametresPage() {
           <div className="flex-1 flex flex-col min-h-0">
             <div className="h-14 border-b border-[#0f0f12] flex items-center justify-between px-7 shrink-0">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm text-zinc-500">flopcheck</span>
+                <span className="font-mono text-sm text-zinc-500">Vyrll</span>
                 <span className="text-zinc-700">/</span>
                 <span className="font-mono text-sm text-zinc-500">
                   paramètres
@@ -697,7 +697,7 @@ export default function ParametresPage() {
                 <span className="font-mono text-xs text-zinc-500">
                   {profile.analyses_used}/{profile.analyses_limit} analyses
                 </span>
-                <div className="size-8 rounded-full bg-[#00ff88]/20 border border-[#00ff88]/40 flex items-center justify-center font-[family-name:var(--font-syne)] font-bold text-sm text-[#00ff88]">
+                <div className="size-8 rounded-full bg-[#9b6dff]/20 border border-[#9b6dff]/40 flex items-center justify-center font-[family-name:var(--font-syne)] font-bold text-sm text-[#9b6dff]">
                   {(profile.username ?? profile.email ?? "U").charAt(0).toUpperCase()}
                 </div>
               </div>
@@ -717,7 +717,7 @@ export default function ParametresPage() {
                       onClick={() => setTab(t.id)}
                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left font-mono text-sm transition-all ${
                         tab === t.id
-                          ? "bg-[#00ff88]/10 text-white font-semibold border border-[#00ff88]/30"
+                          ? "bg-[#9b6dff]/10 text-white font-semibold border border-[#9b6dff]/30"
                           : "text-zinc-500 hover:text-zinc-300 hover:bg-[#0d0d0f] border border-transparent"
                       }`}
                     >

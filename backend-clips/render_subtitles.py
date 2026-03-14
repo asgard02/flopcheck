@@ -207,34 +207,65 @@ def blend_overlay(frame_bgr: np.ndarray, overlay_rgba: np.ndarray) -> np.ndarray
     return cv2.cvtColor(blended, cv2.COLOR_RGB2BGR)
 
 
-# Détecteur de visages pour crop intelligent (chargé une seule fois)
-_FACE_CASCADE = None
+# Détecteurs de visages pour crop intelligent (chargés une seule fois)
+_FRONTAL_CASCADE = None
+_PROFILE_CASCADE = None
 
 
-def _get_face_cascade():
-    global _FACE_CASCADE
-    if _FACE_CASCADE is None:
+def _get_frontal_cascade():
+    global _FRONTAL_CASCADE
+    if _FRONTAL_CASCADE is None:
         path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-        _FACE_CASCADE = cv2.CascadeClassifier(path)
-    return _FACE_CASCADE
+        _FRONTAL_CASCADE = cv2.CascadeClassifier(path)
+    return _FRONTAL_CASCADE
+
+
+def _get_profile_cascade():
+    global _PROFILE_CASCADE
+    if _PROFILE_CASCADE is None:
+        path = cv2.data.haarcascades + "haarcascade_profileface.xml"
+        c = cv2.CascadeClassifier(path)
+        _PROFILE_CASCADE = c if not c.empty() else False  # False = fichier absent
+    return _PROFILE_CASCADE if _PROFILE_CASCADE is not False else None
+
+
+def _detect_with_cascade(cascade, gray, frame_w, frame_h):
+    faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(40, 40))
+    if len(faces) == 0:
+        return None
+    x, y, w, h = max(faces, key=lambda r: r[2] * r[3])
+    cx = (x + w / 2) / frame_w
+    cy = (y + h / 2) / frame_h
+    return (cx, cy)
 
 
 def detect_face_center(frame: np.ndarray) -> tuple[float, float] | None:
     """
-    Détecte le centre du visage principal (le plus grand).
-    Retourne (x_center, y_center) normalisés 0-1, ou None si pas de visage.
-    Paramètres assouplis pour mieux détecter en conditions variées (angle, éclairage).
+    Détecte le centre du visage principal (frontal ou profil).
+    Essaie frontal d'abord, puis profil (gauche et droite) si rien.
     """
-    cascade = _get_face_cascade()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = cascade.detectMultiScale(gray, scaleFactor=1.08, minNeighbors=4, minSize=(60, 60))
-    if len(faces) == 0:
-        return None
-    # Prendre le plus grand visage (souvent le principal)
-    x, y, w, h = max(faces, key=lambda r: r[2] * r[3])
-    cx = (x + w / 2) / frame.shape[1]
-    cy = (y + h / 2) / frame.shape[0]
-    return (cx, cy)
+    h, w = frame.shape[:2]
+
+    # 1. Frontal
+    pos = _detect_with_cascade(_get_frontal_cascade(), gray, w, h)
+    if pos is not None:
+        return pos
+
+    # 2. Profil gauche (cascade entraîné sur visages tournés à gauche)
+    profile = _get_profile_cascade()
+    if profile is not None:
+        pos = _detect_with_cascade(profile, gray, w, h)
+        if pos is not None:
+            return pos
+
+        # 3. Profil droit : flip horizontal puis détecter, remapper les coords
+        flipped = cv2.flip(gray, 1)
+        pos = _detect_with_cascade(profile, flipped, w, h)
+        if pos is not None:
+            return (1.0 - pos[0], pos[1])  # remapper x
+
+    return None
 
 
 def get_crop_center_for_frame(
@@ -257,7 +288,7 @@ def get_crop_center_for_frame(
     if pos is None:
         return prev_center if prev_center is not None else fallback
 
-    # Rejet des sauts brutaux : si > 15% de l'image, probable faux positif
+    # Rejet des sauts brutaux : si > 15% de l'image, probable faux positif (main, écran, objet)
     if prev_center is not None:
         dist = ((pos[0] - prev_center[0]) ** 2 + (pos[1] - prev_center[1]) ** 2) ** 0.5
         if dist > 0.15:

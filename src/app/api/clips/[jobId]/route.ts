@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase";
+import { isR2Configured, deleteR2Clips } from "@/lib/r2";
 
 const TERMINAL_STATUSES = ["done", "error"] as const;
 
@@ -217,8 +218,17 @@ export async function DELETE(
       );
     }
 
-    const admin = createAdminClient();
     const storageFolder = job.backend_job_id ?? jobId;
+
+    if (isR2Configured()) {
+      try {
+        await deleteR2Clips(storageFolder);
+      } catch (r2Err) {
+        console.error("R2 clips delete error:", r2Err);
+      }
+    }
+
+    const admin = createAdminClient();
     try {
       const { data: files } = await admin.storage
         .from("clips")
@@ -229,7 +239,7 @@ export async function DELETE(
         await admin.storage.from("clips").remove(pathsToRemove);
       }
     } catch (storageErr) {
-      console.error("Clips storage delete error:", storageErr);
+      console.error("Supabase clips delete error:", storageErr);
     }
 
     const { error: deleteError } = await admin

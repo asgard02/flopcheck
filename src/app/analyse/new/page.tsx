@@ -43,17 +43,17 @@ export default function AnalyseNewPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const raw = sessionStorage.getItem("flopcheck_temp_result");
+    const raw = sessionStorage.getItem("vyrll_temp_result");
     if (raw) {
       try {
         const data = JSON.parse(raw);
         setResult(data);
-        sessionStorage.removeItem("flopcheck_temp_result");
+        sessionStorage.removeItem("vyrll_temp_result");
       } catch {
-        router.replace("/dashboard");
+        router.replace("/clips");
       }
     } else {
-      router.replace("/dashboard");
+      router.replace("/clips");
     }
   }, [router]);
 
@@ -76,7 +76,7 @@ export default function AnalyseNewPage() {
       videoId={result.videoId}
       videoData={result.videoData}
       diagnosis={result.diagnosis}
-      onBack={() => router.push("/dashboard")}
+      onBack={() => router.push("/clips")}
     />
   );
 }

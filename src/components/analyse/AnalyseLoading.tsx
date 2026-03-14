@@ -13,7 +13,7 @@ export function AnalyseLoading({
         {[1, 2, 3, 4, 5].map((i) => (
           <span
             key={i}
-            className="animate-analyse-bar w-2 rounded-full bg-[#00ff88] h-6 block"
+            className="animate-analyse-bar w-2 rounded-full bg-[#9b6dff] h-6 block"
             style={{
               boxShadow: "0 0 12px rgba(0, 255, 136, 0.4)",
             }}

@@ -98,17 +98,17 @@ function PlanCard({
     <div
       className={`relative rounded-2xl border p-8 flex flex-col ${
         plan.accent
-          ? "bg-[#00ff88]/5 border-[#00ff88]/40"
+          ? "bg-[#9b6dff]/5 border-[#9b6dff]/40"
           : "bg-[#0c0c0e] border-[#0f0f12]"
       }`}
       style={
         plan.accent
-          ? { boxShadow: "inset 0 2px 0 0 rgba(0,255,136,0.5)" }
+          ? { boxShadow: "inset 0 2px 0 0 rgba(155, 109, 255, 0.4)" }
           : undefined
       }
     >
       {isCurrent && (
-        <span className="absolute top-4 right-4 font-mono text-[10px] font-bold tracking-wider px-2 py-1 rounded bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/40">
+        <span className="absolute top-4 right-4 font-mono text-[10px] font-bold tracking-wider px-2 py-1 rounded bg-accent-gradient text-[#080809] border border-[#9b6dff]/40">
           TON PLAN
         </span>
       )}
@@ -121,7 +121,7 @@ function PlanCard({
       </div>
 
       <div className="flex items-baseline gap-1 mb-8">
-        <span className="font-mono text-4xl font-bold text-[#00ff88]">
+        <span className="font-mono text-4xl font-bold text-[#9b6dff]">
           {plan.price}
         </span>
         <span className="font-mono text-lg text-zinc-500">{plan.period}</span>
@@ -135,7 +135,7 @@ function PlanCard({
               key={i}
               className="flex items-start gap-3 font-mono text-sm text-zinc-300"
             >
-              <Icon className="size-4 text-[#00ff88] shrink-0 mt-0.5" />
+              <Icon className="size-4 text-[#9b6dff] shrink-0 mt-0.5" />
               {f.text}
             </li>
           );
@@ -146,7 +146,7 @@ function PlanCard({
         href={plan.href}
         className={`w-full py-3.5 rounded-xl font-mono text-sm font-bold text-center transition-all flex items-center justify-center gap-2 ${
           plan.accent
-            ? "bg-[#00ff88] text-[#080809] hover:bg-[#00ff88]/90"
+            ? "bg-accent-gradient text-[#080809] hover:opacity-90"
             : "bg-[#1a1a1e] text-white border border-[#0f0f12] hover:border-[#1a1a1e] hover:bg-[#0d0d0f]"
         }`}
       >
@@ -210,7 +210,7 @@ export default function PlansPage() {
                       <th className="text-center p-4 font-mono text-xs text-zinc-500 uppercase tracking-wider">
                         Gratuit
                       </th>
-                      <th className="text-center p-4 font-mono text-xs text-zinc-500 uppercase tracking-wider bg-[#00ff88]/5">
+                      <th className="text-center p-4 font-mono text-xs text-zinc-500 uppercase tracking-wider bg-[#9b6dff]/5">
                         Pro
                       </th>
                       <th className="text-center p-4 font-mono text-xs text-zinc-500 uppercase tracking-wider">
@@ -241,11 +241,11 @@ export default function PlansPage() {
                         <td className="p-4 text-center text-zinc-500">
                           {row[1]}
                         </td>
-                        <td className="p-4 text-center bg-[#00ff88]/5">
+                        <td className="p-4 text-center bg-[#9b6dff]/5">
                           <span
                             className={
                               row[2] === "✓"
-                                ? "text-[#00ff88]"
+                                ? "text-[#9b6dff]"
                                 : "text-zinc-500"
                             }
                           >
@@ -256,7 +256,7 @@ export default function PlansPage() {
                           <span
                             className={
                               row[3] === "✓" || row[3] === "Illimité"
-                                ? "text-[#00ff88]"
+                                ? "text-[#9b6dff]"
                                 : "text-zinc-500"
                             }
                           >
@@ -278,7 +278,7 @@ export default function PlansPage() {
                 </p>
                 <Link
                   href="/parametres?tab=plan"
-                  className="inline-flex items-center gap-2 font-mono text-sm font-medium text-[#00ff88] hover:text-[#00ff88]/80 transition-colors"
+                  className="inline-flex items-center gap-2 font-mono text-sm font-medium text-[#9b6dff] hover:text-[#9b6dff]/80 transition-colors"
                 >
                   Aller aux paramètres
                   <ArrowRight className="size-4" />

@@ -174,10 +174,12 @@ export default function ExporterPage() {
               .print-report .text-white { color: #111 !important; }
               .print-report .text-zinc-500 { color: #666 !important; }
               .print-report .text-zinc-300 { color: #333 !important; }
-              .print-report [class*="text-[#00ff88]"] { color: #059669 !important; }
+              .print-report [class*="text-[#9b6dff]"] { color: #333 !important; }
+              .print-report [class*="text-[#4a9e6a]"] { color: #059669 !important; }
               .print-report [class*="text-[#ff3b3b]"] { color: #dc2626 !important; }
               .print-report [class*="border-[#"] { border-color: #ddd !important; }
-              .print-report [class*="bg-[#00ff88]"] { background: #ecfdf5 !important; }
+              .print-report [class*="bg-[#9b6dff]"], .print-report .bg-accent-gradient { background: #e9d5ff !important; }
+              .print-report [class*="bg-[#4a9e6a]"] { background: #ecfdf5 !important; }
             }
           `,
         }}
@@ -225,7 +227,7 @@ export default function ExporterPage() {
                       onClick={() => setSelected(item)}
                       className={`w-full flex gap-3 p-3 rounded-lg text-left transition-all ${
                         selected?.id === item.id
-                          ? "bg-[#00ff88]/10 border border-[#00ff88]/30"
+                          ? "bg-[#9b6dff]/10 border border-[#9b6dff]/30"
                           : "hover:bg-[#0d0d0f] border border-transparent"
                       }`}
                     >
@@ -261,7 +263,7 @@ export default function ExporterPage() {
                 type="button"
                 onClick={handleCopy}
                 disabled={!selected}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#0f0f12] font-mono text-xs text-zinc-300 hover:bg-[#0d0d0f] hover:text-[#00ff88] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#0f0f12] font-mono text-xs text-zinc-300 hover:bg-[#0d0d0f] hover:text-[#9b6dff] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
                 {copied ? "Copié" : "Copier le rapport"}
@@ -270,7 +272,7 @@ export default function ExporterPage() {
                 type="button"
                 onClick={handlePrint}
                 disabled={!selected}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-xs font-bold hover:bg-[#00ff88]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-gradient text-[#080809] font-mono text-xs font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download className="size-4" />
                 Exporter en PDF

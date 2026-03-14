@@ -43,7 +43,7 @@ const FLOOP_DEMO = {
 };
 
 function getScoreColor(score: number) {
-  if (score >= 8) return "#00ff88";
+  if (score >= 8) return "#4a9e6a";
   if (score >= 5) return "#ffaa00";
   return "#ff4444";
 }
@@ -85,15 +85,15 @@ function UrlForm({
               setUrl(e.target.value);
               setError(null);
             }}
-            placeholder="Colle ton URL YouTube..."
-            className="w-full h-12 pl-10 pr-4 rounded-lg border border-[#0f0f12] bg-[#0d0d0f] text-white placeholder-zinc-600 font-mono text-sm outline-none focus:border-[#00ff88] focus:ring-1 focus:ring-[#00ff88]/50 transition-all"
+            placeholder="Colle ton URL YouTube ou Twitch..."
+            className="w-full h-12 pl-10 pr-4 rounded-lg border border-[#0f0f12] bg-[#0d0d0f] text-white placeholder-zinc-600 font-mono text-sm outline-none focus:border-[#9b6dff] focus:ring-1 focus:ring-[#9b6dff]/50 transition-all"
           />
         </div>
         <button
           type="submit"
-          className="h-12 px-6 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-sm font-medium hover:bg-[#00ff88]/90 active:scale-[0.98] transition-all flex items-center justify-center shrink-0"
+          className="h-12 px-6 rounded-lg bg-accent-gradient text-[#080809] font-mono text-sm font-medium hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center shrink-0"
         >
-          Analyser →
+          Générer des clips →
         </button>
       </div>
       {error && (
@@ -158,7 +158,7 @@ export default function LandingPage() {
   const handleUrlSubmit = (url: string) => {
     if (url) {
       if (typeof window !== "undefined") {
-        sessionStorage.setItem("flopcheck_pending_url", url);
+        sessionStorage.setItem("vyrll_pending_url", url);
       }
     }
     router.push("/register");
@@ -195,9 +195,9 @@ export default function LandingPage() {
         <Link href="/" className="flex items-center gap-2">
           <img src="/logo.svg" alt="" className="size-8 shrink-0" />
           <span className="font-[family-name:var(--font-syne)] font-bold text-white">
-            flopcheck
+            Vyrll
           </span>
-          <span className="font-mono text-[10px] text-[#00ff88] px-1.5 py-0.5 rounded border border-[#00ff88]/30 bg-[#00ff88]/5">
+          <span className="font-mono text-[10px] text-[#9b6dff] px-1.5 py-0.5 rounded border border-[#9b6dff]/30 bg-[#9b6dff]/5">
             BETA
           </span>
         </Link>
@@ -224,7 +224,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/register"
-            className="font-mono text-xs font-medium px-4 py-2 rounded-lg bg-[#00ff88] text-[#080809] hover:bg-[#00ff88]/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="font-mono text-xs font-medium px-4 py-2 rounded-lg bg-[#9b6dff] text-[#080809] hover:bg-[#9b6dff]/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             Commencer
           </Link>
@@ -239,13 +239,13 @@ export default function LandingPage() {
               className="font-[family-name:var(--font-syne)] font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-[1.1] text-center text-white mb-10"
               style={{ fontVariationSettings: '"wght" 800' }}
             >
-              Ta vidéo a fait un flop.
+              Turn your YouTube & Twitch videos
               <br />
               <span
-                className="text-[#00ff88]"
+                className="text-[#9b6dff]"
                 style={{ textShadow: "0 0 40px rgba(0,255,136,0.4)" }}
               >
-                On te dit pourquoi en 30 secondes.
+                into viral clips.
               </span>
             </h1>
 
@@ -257,7 +257,7 @@ export default function LandingPage() {
         <section className="py-8 px-6">
           <div className="max-w-4xl mx-auto">
             <p className="font-mono text-center text-zinc-500 mb-6">
-              <span className="text-[#00ff88] font-semibold tabular-nums">{counter.toLocaleString("fr-FR")}</span>{" "}
+              <span className="text-[#9b6dff] font-semibold tabular-nums">{counter.toLocaleString("fr-FR")}</span>{" "}
               vidéos analysées cette semaine
             </p>
 
@@ -342,9 +342,9 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="rounded-xl overflow-hidden border border-[#00ff88]/40 bg-[#0a0a0c]">
+              <div className="rounded-xl overflow-hidden border border-[#9b6dff]/40 bg-[#0a0a0c]">
                 <div className="px-4 pt-4 pb-2">
-                  <span className="font-mono text-xs text-[#00ff88]">Après</span>
+                  <span className="font-mono text-xs text-[#9b6dff]">Après</span>
                   <span className="font-mono text-xs text-zinc-500 ml-2">
                     Score 9/10
                   </span>
@@ -361,10 +361,10 @@ export default function LandingPage() {
                       if (next) (e.target as HTMLImageElement).src = next;
                     }}
                   />
-                  <div className="absolute inset-0 bg-[#00ff88]/5" />
+                  <div className="absolute inset-0 bg-[#9b6dff]/5" />
                 </div>
                 <div className="p-4">
-                  <p className="text-[#00ff88] font-[family-name:var(--font-syne)] font-semibold line-clamp-2">
+                  <p className="text-[#9b6dff] font-[family-name:var(--font-syne)] font-semibold line-clamp-2">
                     {FLOOP_DEMO.after.title}
                   </p>
                   <p className="font-mono text-xs text-zinc-500 mt-1">
@@ -392,7 +392,7 @@ export default function LandingPage() {
                   <ul className="space-y-2">
                     {FLOOP_DEMO.after.quickwins.map((w, i) => (
                       <li key={i} className="font-mono text-sm text-zinc-300 flex items-start gap-2">
-                        <span className="text-[#00ff88] shrink-0">→</span>
+                        <span className="text-[#9b6dff] shrink-0">→</span>
                         {w}
                       </li>
                     ))}
@@ -420,7 +420,7 @@ export default function LandingPage() {
                 <p className="font-mono text-sm text-zinc-500 mb-4">
                   3 analyses pour tester
                 </p>
-                <p className="font-mono text-2xl text-[#00ff88] mb-6">0€</p>
+                <p className="font-mono text-2xl text-[#9b6dff] mb-6">0€</p>
                 <ul className="space-y-2 font-mono text-xs text-zinc-400 mb-8">
                   <li>3 analyses / mois</li>
                   <li>Score + verdict</li>
@@ -436,8 +436,8 @@ export default function LandingPage() {
               </div>
 
               <div
-                className="rounded-xl border border-[#00ff8830] bg-[#0d110e] p-8 relative overflow-hidden"
-                style={{ boxShadow: "inset 0 2px 0 0 #00ff88" }}
+                className="rounded-xl border border-[#9b6dff30] bg-[#0d110e] p-8 relative overflow-hidden"
+                style={{ boxShadow: "inset 0 2px 0 0 #9b6dff" }}
               >
                 <h3 className="font-[family-name:var(--font-syne)] font-bold text-xl text-white mb-1">
                   Pro
@@ -445,7 +445,7 @@ export default function LandingPage() {
                 <p className="font-mono text-sm text-zinc-500 mb-4">
                   Pour les créateurs sérieux
                 </p>
-                <p className="font-mono text-2xl text-[#00ff88] mb-6">9€/mois</p>
+                <p className="font-mono text-2xl text-[#9b6dff] mb-6">9€/mois</p>
                 <ul className="space-y-2 font-mono text-xs text-zinc-400 mb-8">
                   <li>50 analyses / mois</li>
                   <li>Historique complet</li>
@@ -456,7 +456,7 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href="/register"
-                  className="block w-full py-3 rounded-lg bg-[#00ff88] text-[#080809] font-mono text-sm font-bold text-center hover:bg-[#00ff88]/90 transition-all"
+                  className="block w-full py-3 rounded-lg bg-[#9b6dff] text-[#080809] font-mono text-sm font-bold text-center hover:bg-[#9b6dff]/90 transition-all"
                 >
                   Passer Pro
                 </Link>
@@ -469,7 +469,7 @@ export default function LandingPage() {
                 <p className="font-mono text-sm text-zinc-500 mb-4">
                   T&apos;as plus d&apos;excuses
                 </p>
-                <p className="font-mono text-2xl text-[#00ff88] mb-6">29€/mois</p>
+                <p className="font-mono text-2xl text-[#9b6dff] mb-6">29€/mois</p>
                 <ul className="space-y-2 font-mono text-xs text-zinc-400 mb-8">
                   <li>Analyses illimitées</li>
                   <li>Tout du plan Pro</li>
@@ -507,7 +507,7 @@ export default function LandingPage() {
           <div className="max-w-5xl mx-auto flex items-center justify-center gap-2">
             <img src="/logo.svg" alt="" className="size-6" />
             <span className="font-[family-name:var(--font-syne)] font-bold text-white">
-              flopcheck
+              Vyrll
             </span>
             <span className="font-mono text-xs text-zinc-500">·</span>
             <span className="font-mono text-xs text-zinc-500">
