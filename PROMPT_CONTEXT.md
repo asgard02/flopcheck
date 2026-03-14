@@ -47,7 +47,7 @@ vyrll/
 │   │   ├── globals.css
 │   │   ├── login/
 │   │   ├── register/
-│   │   ├── dashboard/             # Accueil connecté
+│   │   ├── dashboard/             # Accueil : création clips (URL, durée, format) + clips récents
 │   │   ├── analyse/
 │   │   │   ├── [id]/              # Détail d'une analyse
 │   │   │   └── new/               # Résultat temporaire (sessionStorage)
@@ -55,7 +55,7 @@ vyrll/
 │   │   ├── analytics/
 │   │   ├── exporter/
 │   │   ├── clips/
-│   │   │   ├── page.tsx          # Génération + clips récents
+│   │   │   ├── page.tsx          # Analyse : formulaire URL + liste analyses (ProjectSection)
 │   │   │   ├── projet/[jobId]/   # Détail d'un job (grille de clips)
 │   │   │   └── dev/              # Page dev only : liste aplatie de clips (NODE_ENV !== production)
 │   │   ├── upgrade/
@@ -85,6 +85,7 @@ vyrll/
 │       ├── youtube.ts            # extractVideoId, isValidVideoUrl, etc.
 │       ├── profile-context.tsx
 │       ├── analyze-process.ts
+│       ├── r2.ts                 # R2/S3 (deleteR2Clips, isR2Configured)
 │       └── utils.ts
 ├── backend-clips/                # Service Node séparé
 │   ├── server.js                 # POST /jobs, GET /jobs/:id, GET /jobs/:id/clips/:index
@@ -111,14 +112,14 @@ vyrll/
 |-------|-------------|
 | `/login` | Connexion email + mot de passe |
 | `/register` | Inscription + username |
-| `/dashboard` | Accueil : formulaire URL YouTube + analyses récentes |
+| `/dashboard` | Accueil : formulaire création de clips (URL, durée, format, style) + clips récents |
 | `/projets` | Liste analyses (onglets) + onglet Clips (jobs par carte) |
-| `/analyse/[id]` | Détail d'une analyse (ResultView) |
+| `/analyse/[id]` | Détail d'une analyse (ResultView). Bouton « Générer clip » → dashboard avec URL pré-remplie |
 | `/analyse/new` | Résultat temporaire (sessionStorage) |
 | `/analytics` | Stats : score moyen, évolution, point faible récurrent |
 | `/exporter` | Export rapport Markdown ou PDF |
-| `/clips` | Génération de clips (URL, durée, format, style) + cartes récentes → lien vers projet |
-| `/clips/projet/[jobId]` | Détail d'un job : grille de vidéos + téléchargement |
+| `/clips` | Analyse : formulaire URL YouTube pour analyser + liste des analyses (ProjectSection) |
+| `/clips/projet/[jobId]` | Détail d'un job : grille de vidéos + téléchargement. Bouton « Refaire des clips » → dashboard avec URL pré-remplie |
 | `/clips/dev` | **Dev only** : liste aplatie de tous les clips (pas de regroupement par projet). 404 en production. |
 | `/upgrade` | Codes promo + plans |
 | `/plans` | Page plans (redirige free vers ici) |
@@ -239,7 +240,7 @@ Logique du score : écart performance réelle / potentiel, ratio vues/abonnés, 
 - **Couleurs** : fond `#080809`, accent interactif dégradé teal→violet `linear-gradient(135deg, #2dd4bf, #7c3aed)` (CTA, barre quota, badges Pro), fallback texte/bordures `#9b6dff`, succès `#4a9e6a`, danger `#ff3b3b`, surface `#0c0c0e` / `#0d0d0f`, bordures `#0f0f12` / `#1a1a1e`. Logo noir/crème (#e8e8e0) inchangé.
 - **Typo** : Syne (display), DM Sans (body), JetBrains Mono (mono).
 - **Layout** : Sidebar 60px (200px au hover), Header avec quota et lien Upgrade.
-- **ResultView** : onglets Overview / SEO / Wins.
+- **ResultView** : onglets Overview / SEO / Wins. Props optionnelles `videoUrl` + `onGenerateClip` pour afficher le bouton « Générer clip » (analyse → dashboard).
 
 ---
 
@@ -285,17 +286,22 @@ Logique du score : écart performance réelle / potentiel, ratio vues/abonnés, 
 - **Supabase** : client via `@/lib/supabase/client`, server via `@/lib/supabase/server`, admin via `@/lib/supabase/admin`.
 - **Types** : `HistoryItem`, `DiagnosisJSON` dans `@/components/dashboard/types.ts` ; types clips dans les pages/API.
 - **YouTube** : `extractVideoId`, `isValidVideoUrl`, etc. dans `@/lib/youtube.ts`. Clips : `isValidVideoUrl` gère aussi Twitch.
+- **Pré-remplissage clips** : `sessionStorage.vyrll_pending_clip_url` — le dashboard lit cette clé au mount et pré-remplit le champ URL (depuis analyse ou projet clips).
 
 ---
 
 ## 11. Flux utilisateur
 
 1. Landing → CTA → `/register` → Dashboard.
-2. Dashboard → URL YouTube → POST `/api/analyze` → `/analyse/[id]`.
-3. Projets → Filtres → Clic → `/analyse/[id]`. Onglet Clips → cartes jobs → `/clips/projet/[jobId]`.
-4. Clips → URL + options → POST `/api/clips/start` → polling GET `/api/clips/[jobId]` → vue projet ou liste récente.
-5. Analytics (si ≥ 3 analyses), Exporter, Upgrade (code promo), Paramètres.
-6. En dev : `/clips/dev` pour voir tous les clips en liste aplatie (non exposé en prod).
+2. Analyse : `/clips` → URL YouTube → POST `/api/analyze` → `/analyse/[id]`.
+3. Depuis une analyse : bouton « Générer clip » → `sessionStorage.vyrll_pending_clip_url` + redirection `/dashboard` → champ URL pré-rempli.
+4. Projets → Filtres → Clic → `/analyse/[id]`. Onglet Clips → cartes jobs → `/clips/projet/[jobId]`.
+5. Depuis un projet clips : bouton « Refaire des clips » → même mécanisme (sessionStorage + dashboard).
+6. Dashboard → URL + options → POST `/api/clips/start` → polling GET `/api/clips/[jobId]` → vue projet ou liste récente.
+7. Analytics (si ≥ 3 analyses), Exporter, Upgrade (code promo), Paramètres.
+8. En dev : `/clips/dev` pour voir tous les clips en liste aplatie (non exposé en prod).
+
+**SessionStorage** : `vyrll_pending_clip_url` — URL pré-remplie au dashboard quand on arrive depuis « Générer clip » (analyse) ou « Refaire des clips » (projet).
 
 ---
 
@@ -307,3 +313,4 @@ Logique du score : écart performance réelle / potentiel, ratio vues/abonnés, 
 - **Auth** : Supabase Auth. **Plans** : free (3 analyses, 0 clips), pro (50 analyses, 10 clips), unlimited (999, 50).
 - **Codes promo** : `PROMO_CODES` env. **Clips** : Pro+ ; backend externe ; en local `CLIPS_MAX_PER_JOB=1` dans `backend-clips/.env`.
 - **Page dev** : `/clips/dev` (liste brute de clips, 404 en production).
+- **Liens directs clips** : Depuis `/analyse/[id]` (bouton « Générer clip ») ou `/clips/projet/[jobId]` (bouton « Refaire des clips ») → dashboard avec URL pré-remplie via `sessionStorage.vyrll_pending_clip_url`.
