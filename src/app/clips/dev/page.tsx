@@ -20,7 +20,7 @@ type FlattenedClip = {
 };
 
 async function fetchClips(): Promise<FlattenedClip[]> {
-  const hdrs = headers();
+  const hdrs = await headers();
   const protocol = hdrs.get("x-forwarded-proto") ?? "http";
   const host = hdrs.get("host");
 
